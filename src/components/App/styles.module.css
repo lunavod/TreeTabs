@@ -3,6 +3,8 @@
   color: #d3d9e3;
   font-family: sans-serif;
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .content {
@@ -25,7 +27,7 @@
   overflow: hidden;
   align-items: center;
   background: #4e4e56;
-  /* border-bottom: 1px solid #2e2f37; */
+  margin-left: var(--offset);
   cursor: pointer;
   border-radius: 4px;
 
@@ -56,6 +58,26 @@
   img {
     height: 1.2em;
     aspect-ratio: 1/1;
+  }
+
+  .noFavicon,
+  .volume {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      fill: rgba(256, 256, 256, 0.6);
+      height: 14px;
+      margin-right: auto;
+    }
+  }
+
+  .volume {
+    justify-content: flex-start;
   }
 
   .close {
@@ -100,5 +122,50 @@
 
   &:hover .add {
     background: rgba(256, 256, 256, 1);
+  }
+}
+
+.tabWrapper {
+  position: relative;
+  .popup {
+    --left: calc(1.2em + 6px + 6px + var(--offset));
+    position: absolute;
+    top: calc(100% + 2px);
+    left: var(--left);
+    display: none;
+    z-index: 1000;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 0px 4px 2px #2e2f3775;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #2e2f37;
+    width: calc(100% - var(--left));
+    overflow: hidden;
+    padding: 6px;
+    transition: opacity 0.05s;
+
+    .tabTitle {
+      font-size: 0.8;
+      font-weight: 400;
+    }
+
+    .tabUrl {
+      font-size: 0.8em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 100%;
+      opacity: 0.8;
+    }
+
+    .thumbnail {
+      width: 200px;
+      margin: 12px auto;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
   }
 }

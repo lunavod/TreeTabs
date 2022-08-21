@@ -1,19 +1,24 @@
 import clsx from 'clsx'
-import orderBy from 'lodash-es/orderBy'
 import { observer } from 'mobx-react-lite'
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
+import FileQuestionIcon from '../../assets/icons/solid/file-circle-question.svg'
 import PlusIcon from '../../assets/icons/solid/plus.svg'
+import VolumeHighIcon from '../../assets/icons/solid/volume-high.svg'
+import VolumeLowIcon from '../../assets/icons/solid/volume-low.svg'
+// import VolumeIcon from '../../assets/icons/solid/volume.svg'
 import XmarkIcon from '../../assets/icons/solid/xmark.svg'
 import './styles.module.css'
+
+type VivaldiTab = chrome.tabs.Tab & { vivExtData?: string }
 
 function App() {
   const [windowId, setWindowId] = useState<number>(
     chrome.windows?.WINDOW_ID_CURRENT,
   )
-  const [tabs, setT] = useState<chrome.tabs.Tab[]>([])
+  const [tabs, setT] = useState<VivaldiTab[]>([])
   const [levels, setLevels] = useState<Record<number, number>>({})
   const [x, setX] = useState(0)
 
@@ -41,18 +46,18 @@ function App() {
 
         console.log(tabParentMap.current)
 
-        const arr: chrome.tabs.Tab[] = []
+        const arr: VivaldiTab[] = []
         const tmpLevels: Record<number, number> = {}
-        const mapTabs = (t: chrome.tabs.Tab[], level: number) => {
+        const mapTabs = (t: VivaldiTab[], level: number) => {
           for (const tab of t) {
             arr.push(tab)
             tmpLevels[tab.id as number] = level
             const children = tabs.filter((t) => t.openerTabId === tab.id)
-            mapTabs(children, level + 1)
+            mapTabs(children as VivaldiTab[], level + 1)
           }
         }
         const top = tabs.filter((t) => !t.openerTabId)
-        mapTabs(top, 0)
+        mapTabs(top as VivaldiTab[], 0)
         setT(arr)
         setLevels(tmpLevels)
       })
@@ -77,24 +82,11 @@ function App() {
 
     return () => {
       chrome.tabs.onUpdated.removeListener(reloadTabs)
-      chrome.tabs.onRemoved.removeListener(reloadTabs)
+      chrome.tabs.onRemoved.removeListener(onRemove)
       chrome.tabs.onMoved.removeListener(reloadTabs)
       chrome.tabs.onActivated.removeListener(reloadTabs)
     }
   }, [windowId])
-
-  const onClick = (tab: chrome.tabs.Tab) => {
-    chrome.tabs.update(tab.id as number, { active: true })
-  }
-
-  const onCloseClick = (e: React.MouseEvent, tab: chrome.tabs.Tab) => {
-    e.preventDefault()
-    const activeTab = tabs.find((t) => t.active === true)
-    chrome.tabs.remove(tab.id as number, () => {
-      if (tab.active) return
-      chrome.tabs.update(activeTab?.id as number, { active: true })
-    })
-  }
 
   const onOpenNewClick = () => {
     chrome.tabs.create({
@@ -135,15 +127,15 @@ const TabElement = observer(
     tabs,
     level,
   }: {
-    tab: chrome.tabs.Tab
-    tabs: chrome.tabs.Tab[]
+    tab: VivaldiTab
+    tabs: VivaldiTab[]
     level: number
   }) => {
-    const onClick = (tab: chrome.tabs.Tab) => {
+    const onClick = (tab: VivaldiTab) => {
       chrome.tabs.update(tab.id as number, { active: true })
     }
 
-    const onCloseClick = (e: React.MouseEvent, tab: chrome.tabs.Tab) => {
+    const onCloseClick = (e: React.MouseEvent, tab: VivaldiTab) => {
       e.preventDefault()
       const activeTab = tabs.find((t) => t.active === true)
       chrome.tabs.remove(tab.id as number, () => {
@@ -157,6 +149,7 @@ const TabElement = observer(
     if (tab.url) {
       const url = new URL(tab.url as string)
       if (url.host === 'vivaldi-webui') {
+        title = 'Vivaldi: New tab '
         if (url.pathname === '/startpage') {
           if (url.searchParams.get('section') === 'history')
             title = 'Vivaldi: History'
@@ -166,24 +159,83 @@ const TabElement = observer(
       }
     }
 
+    const getThumbnail = () => {
+      console.log(tab.vivExtData)
+      const thumb = JSON.parse(
+        !!tab.vivExtData ? tab.vivExtData : '{"thumbnail": ""}',
+      ).thumbnail
+      return thumb
+    }
+
+    const timer = useRef<null | number>(null)
+    const [popupShown, setPopupShown] = useState(false)
+
+    const onMouseEnter = () => {
+      if (timer.current) clearTimeout(timer.current)
+      timer.current = setTimeout(() => setPopupShown(true), 500)
+    }
+    const onMouseLeave = () => {
+      if (timer.current) clearTimeout(timer.current)
+      timer.current = null
+      setPopupShown(false)
+    }
+
     return (
       <div
-        key={tab.id}
-        styleName={clsx('tab', tab.active && 'active')}
-        onClick={() => onClick(tab)}
-        style={{
-          marginLeft: tab.openerTabId ? level * 12 + 'px' : 0,
-        }}
-        title={title}
+        styleName="tabWrapper"
+        style={
+          {
+            '--offset': tab.openerTabId ? level * 12 + 'px' : '0px',
+          } as React.CSSProperties
+        }
       >
-        <img src={tab.favIconUrl} />
-        <span>{title}</span>
-        <div styleName="close" onClick={(e) => onCloseClick(e, tab)}>
-          <XmarkIcon />
+        <div
+          key={tab.id}
+          styleName={clsx('tab', tab.active && 'active')}
+          onClick={() => onClick(tab)}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+        >
+          {!!tab.favIconUrl && <img src={tab.favIconUrl} />}
+          {!tab.favIconUrl && (
+            <div styleName="noFavicon">
+              <FileQuestionIcon />
+            </div>
+          )}
+          {!!tab.audible && <VolumeIndicator />}
+          <span>{title}</span>
+          <div styleName="close" onClick={(e) => onCloseClick(e, tab)}>
+            <XmarkIcon />
+          </div>
+        </div>
+        <div styleName="popup" style={{ opacity: popupShown ? 1 : 0 }}>
+          <span styleName="tabTitle">{title}</span>
+          <span styleName="tabUrl">{tab.url}</span>
+          <img src={getThumbnail()} styleName="thumbnail" />
         </div>
       </div>
     )
   },
 )
+
+export const VolumeIndicator = () => {
+  const icons = [VolumeLowIcon, VolumeHighIcon]
+  const [i, setI] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setI((i) => (i === 1 ? 0 : i + 1))
+    }, 500)
+    return () => clearInterval(interval)
+  })
+
+  const Icon = icons[i]
+
+  return (
+    <div styleName="volume">
+      <Icon />
+    </div>
+  )
+}
 
 export default memo(App)

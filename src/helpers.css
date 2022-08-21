@@ -1,0 +1,37 @@
+.italic {
+  font-style: italic;
+}
+
+.text-subtitles {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.text-h6 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.text-h5 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.text-h4 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.text-h3 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--bg-light);
+  border-radius: 24px;
+}
+
+.hidden {
+  display: none;
+}

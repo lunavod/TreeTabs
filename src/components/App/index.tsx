@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { observer } from 'mobx-react-lite'
 import { memo, useEffect, useRef, useState } from 'react'
 import React from 'react'
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import FileQuestionIcon from '../../assets/icons/solid/file-circle-question.svg'
@@ -10,7 +11,7 @@ import VolumeHighIcon from '../../assets/icons/solid/volume-high.svg'
 import VolumeLowIcon from '../../assets/icons/solid/volume-low.svg'
 // import VolumeIcon from '../../assets/icons/solid/volume.svg'
 import XmarkIcon from '../../assets/icons/solid/xmark.svg'
-import './styles.module.css'
+import styles from './styles.module.css'
 
 type VivaldiTab = chrome.tabs.Tab & { vivExtData?: string }
 
@@ -21,13 +22,15 @@ function App() {
   const [tabs, setT] = useState<VivaldiTab[]>([])
   const [levels, setLevels] = useState<Record<number, number>>({})
   const [x, setX] = useState(0)
+  const [pos, setPos] = useState<Record<string, string>>({})
+  const [contextTab, setContextTab] = useState<VivaldiTab | null>(null)
 
   const tabParentMap = React.useRef<Record<number, number | undefined>>({})
 
   useEffect(() => {
+    if (!chrome.windows) return
     setX(x + 1)
     chrome.windows.getLastFocused().then((w) => {
-      console.log('Set window id', w.id)
       setWindowId(w.id as number)
     })
 
@@ -36,15 +39,11 @@ function App() {
         for (const tab of tabs) {
           if (!tab.id) continue
           if (tab.id in tabParentMap.current) {
-            console.log(`Tab ${tab.id} is found in map`)
             tab.openerTabId = tabParentMap.current[tab.id]
           } else {
-            console.log(`Tab ${tab.id} is NOT found in map`)
             tabParentMap.current[tab.id] = tab.openerTabId
           }
         }
-
-        console.log(tabParentMap.current)
 
         const arr: VivaldiTab[] = []
         const tmpLevels: Record<number, number> = {}
@@ -80,11 +79,19 @@ function App() {
     chrome.tabs.onMoved.addListener(reloadTabs)
     chrome.tabs.onActivated.addListener(reloadTabs)
 
+    const onClick = () => {
+      setPos({})
+      setContextTab(null)
+    }
+
+    document.addEventListener('click', onClick)
+
     return () => {
       chrome.tabs.onUpdated.removeListener(reloadTabs)
       chrome.tabs.onRemoved.removeListener(onRemove)
       chrome.tabs.onMoved.removeListener(reloadTabs)
       chrome.tabs.onActivated.removeListener(reloadTabs)
+      document.removeEventListener('click', onClick)
     }
   }, [windowId])
 
@@ -93,6 +100,68 @@ function App() {
       active: true,
       url: 'chrome://vivaldi-webui/startpage',
     })
+  }
+
+  const onContextMenu = (
+    e: React.MouseEvent<Element, MouseEvent>,
+    tab: VivaldiTab,
+  ) => {
+    e.preventDefault()
+
+    const _pos: Record<string, string> = {}
+    if (e.pageX < window.innerWidth / 2) _pos.left = `${e.pageX}px`
+    else _pos.right = `${window.innerWidth - e.pageX}px`
+    if (e.pageY < (window.innerHeight / 4) * 3) _pos.top = `${e.pageY}px`
+    else _pos.bottom = `${window.innerHeight - e.pageY}px`
+
+    setPos(_pos)
+    setContextTab(tab)
+  }
+
+  const onCloseWithChildren = (e: React.MouseEvent, tab: VivaldiTab) => {
+    e.preventDefault()
+    const tabsMap = tabParentMap.current
+    const tmp = [tab]
+    let newActiveTab: number
+    if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
+      newActiveTab = tabs[tabs.findIndex((t) => t.id === tab.id) - 1]
+        .id as number
+    const rec = (parentId: number) => {
+      tabs
+        .filter((t) => tabsMap[t.id as number] === parentId)
+        .forEach((t) => {
+          tmp.push(t)
+          rec(t.id as number)
+        })
+    }
+    rec(tab.id as number)
+
+    Promise.all(tmp.map((t) => chrome.tabs.remove(t.id as number))).then(() => {
+      if (newActiveTab)
+        chrome.tabs.update(newActiveTab as number, { active: true })
+    })
+  }
+
+  const onCloseTop = (tab: VivaldiTab) => {
+    const activeIndex = tabs.findIndex((t) => !!t.active)
+    const index = tabs.findIndex((t) => t.id === tab.id)
+    const tmp = tabs.slice(0, index)
+
+    if (activeIndex < index)
+      chrome.tabs.update(tabs[index].id as number, { active: true })
+
+    tmp.forEach((t) => chrome.tabs.remove(t.id as number))
+  }
+
+  const onCloseBottom = (tab: VivaldiTab) => {
+    const activeIndex = tabs.findIndex((t) => !!t.active)
+    const index = tabs.findIndex((t) => t.id === tab.id)
+    const tmp = tabs.slice(index + 1)
+
+    if (activeIndex > index)
+      chrome.tabs.update(tabs[index].id as number, { active: true })
+
+    tmp.forEach((t) => chrome.tabs.remove(t.id as number))
   }
 
   return (
@@ -104,8 +173,10 @@ function App() {
               <TabElement
                 tab={tab}
                 tabs={tabs}
+                tabsMap={tabParentMap.current}
                 level={levels[tab.id as number]}
                 key={tab.id}
+                onContextMenu={onContextMenu}
               />
             ))}
             <div styleName="tab transparent" onClick={onOpenNewClick}>
@@ -116,6 +187,22 @@ function App() {
             </div>
           </div>
         </div>
+        {!!(pos.left || pos.right) && (
+          <div style={pos} styleName="menu">
+            <div
+              onClick={(e) => onCloseWithChildren(e, contextTab as VivaldiTab)}
+            >
+              Закрыть с детьми
+            </div>
+            <div onClick={() => onCloseBottom(contextTab as VivaldiTab)}>
+              Закрыть все ниже
+            </div>
+            <div onClick={() => onCloseTop(contextTab as VivaldiTab)}>
+              Закрыть все выше
+            </div>
+            <div onClick={() => location.reload()}>Перезагрузить</div>
+          </div>
+        )}
       </div>
     </BrowserRouter>
   )
@@ -125,22 +212,44 @@ const TabElement = observer(
   ({
     tab,
     tabs,
+    tabsMap,
     level,
+    onContextMenu,
   }: {
     tab: VivaldiTab
     tabs: VivaldiTab[]
+    tabsMap: Record<number, number | undefined>
     level: number
+    onContextMenu: (e: React.MouseEvent, tab: VivaldiTab) => any
   }) => {
-    const onClick = (tab: VivaldiTab) => {
+    const onClick = (e: React.MouseEvent, tab: VivaldiTab) => {
+      const target = e.target as HTMLElement
+
+      let el = target
+      while (el.parentElement) {
+        if (
+          [...el.classList].includes(styles.closeWithChildren) ||
+          [...el.classList].includes(styles.close)
+        )
+          return
+        el = el.parentElement
+      }
+
+      console.log('ACTIVATING')
       chrome.tabs.update(tab.id as number, { active: true })
     }
 
     const onCloseClick = (e: React.MouseEvent, tab: VivaldiTab) => {
       e.preventDefault()
-      const activeTab = tabs.find((t) => t.active === true)
+      let newActiveTab: number = tabs.find((t) => t.active === true)
+        ?.id as number
+      if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
+        newActiveTab = tabs[tabs.findIndex((t) => t.id === tab.id) - 1]
+          .id as number
+
       chrome.tabs.remove(tab.id as number, () => {
         if (tab.active) return
-        chrome.tabs.update(activeTab?.id as number, { active: true })
+        chrome.tabs.update(newActiveTab, { active: true })
       })
     }
 
@@ -160,7 +269,6 @@ const TabElement = observer(
     }
 
     const getThumbnail = () => {
-      console.log(tab.vivExtData)
       const thumb = JSON.parse(
         !!tab.vivExtData ? tab.vivExtData : '{"thumbnail": ""}',
       ).thumbnail
@@ -180,6 +288,16 @@ const TabElement = observer(
       setPopupShown(false)
     }
 
+    const ref = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+      if (!ref.current) return
+      ref.current.addEventListener(
+        'contextmenu',
+        // @ts-ignore
+        (e: React.MouseEvent<Element, MouseEvent>) => onContextMenu(e, tab),
+      )
+    }, [])
+
     return (
       <div
         styleName="tabWrapper"
@@ -190,9 +308,10 @@ const TabElement = observer(
         }
       >
         <div
+          ref={ref}
           key={tab.id}
           styleName={clsx('tab', tab.active && 'active')}
-          onClick={() => onClick(tab)}
+          onClick={(e) => onClick(e, tab)}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >
@@ -203,7 +322,7 @@ const TabElement = observer(
             </div>
           )}
           {!!tab.audible && <VolumeIndicator />}
-          <span>{title}</span>
+          <span styleName="title">{title}</span>
           <div styleName="close" onClick={(e) => onCloseClick(e, tab)}>
             <XmarkIcon />
           </div>

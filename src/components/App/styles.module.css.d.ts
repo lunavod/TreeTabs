@@ -6,6 +6,7 @@ declare const classNames: {
   readonly active: 'active'
   readonly transparent: 'transparent'
   readonly close: 'close'
+  readonly closeWithChildren: 'closeWithChildren'
   readonly add: 'add'
 }
 export default classNames

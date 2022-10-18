@@ -2293,6 +2293,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"classnames@npm:^2.2.5":
+  version: 2.3.2
+  resolution: "classnames@npm:2.3.2"
+  checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
+  languageName: node
+  linkType: hard
+
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -5681,6 +5688,7 @@ __metadata:
     prettier: ^2.6.2
     react: ^17.0.2
     react-classnaming: ^0.16.4
+    react-contextmenu: ^2.14.0
     react-dom: ^17.0.2
     react-jsx: ^1.0.0
     react-router: ^6.3.0
@@ -6599,6 +6607,20 @@ __metadata:
     "@types/react": "*"
     typescript: ">=4.2"
   checksum: 3e723c5a8a8df7d34602c0d0cffbd4c4da1afdbbc3756a4a984feab08abf2e5b70e70f6d3165b8013dc21c30cd9aab51ca764a7bff59bec28c119bf238557464
+  languageName: node
+  linkType: hard
+
+"react-contextmenu@npm:^2.14.0":
+  version: 2.14.0
+  resolution: "react-contextmenu@npm:2.14.0"
+  dependencies:
+    classnames: ^2.2.5
+    object-assign: ^4.1.0
+  peerDependencies:
+    prop-types: ^15.0.0
+    react: ^0.14.0 || ^15.0.0 || ^16.0.1
+    react-dom: ^0.14.0 || ^15.0.0 || ^16.0.1
+  checksum: a250ed92535b339fb5dd8ec11b6a75e28b46fe46b43771ea4fefad6ca88afc44a157620c1596ced90c9fc9fe5270502f4cd1d0b29d71e698ec93a87b3c43b13e
   languageName: node
   linkType: hard
 

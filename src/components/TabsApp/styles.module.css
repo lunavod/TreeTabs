@@ -1,0 +1,33 @@
+.app {
+  background: var(--colorAccentBg);
+  color: var(--colorFg);
+  font-family: sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--colorBg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #a3a6ab;
+    border: 3px solid transparent;
+  }
+}
+
+.content {
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  /* background: var(--colorBg); */
+  gap: 3px;
+  padding: 6px;
+}

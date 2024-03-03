@@ -1,7 +1,4 @@
 declare const classNames: {
-  readonly app: "app";
-  readonly content: "content";
-  readonly tabs: "tabs";
   readonly tab: "tab";
   readonly close: "close";
   readonly closeWithChildren: "closeWithChildren";
@@ -16,6 +13,5 @@ declare const classNames: {
   readonly tabTitle: "tabTitle";
   readonly tabUrl: "tabUrl";
   readonly thumbnail: "thumbnail";
-  readonly menu: "menu";
 };
 export = classNames;

@@ -1,0 +1,258 @@
+.app {
+  background: var(--colorAccentBg);
+  color: var(--colorFg);
+  font-family: sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--colorBg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #a3a6ab;
+    border: 3px solid transparent;
+  }
+}
+
+.content {
+  width: 100%;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  /* background: var(--colorBg); */
+  gap: 3px;
+  padding: 6px;
+}
+
+.tab {
+  height: 32px;
+  display: flex;
+  padding: 0 6px;
+  gap: 6px;
+  overflow: hidden;
+  align-items: center;
+  background: var(--colorAccentBgAlphaHeavy);
+  color: var(--colorAccentFg);
+  margin-left: var(--offset);
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--colorAccentBgAlpha);
+  }
+
+  &.active {
+    background: var(--colorBg);
+    color: var(--colorFg);
+    box-shadow: 0 0px 2px 0px var(--colorBg) 75;
+  }
+
+  &.transparent {
+    background: transparent;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8em;
+  }
+
+  img {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+  }
+
+  .noFavicon,
+  .volume {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      fill: var(--colorFg);
+      height: 14px;
+      margin-right: auto;
+    }
+  }
+
+  .volume {
+    justify-content: flex-start;
+  }
+
+  .title {
+    margin-right: auto;
+  }
+
+  .close {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+    border-radius: 2px;
+    background: var(--colorBg) 40;
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+    display: none;
+
+    &:hover {
+      background: var(--colorBg) 80;
+    }
+
+    svg {
+      fill: var(--colorFg);
+      height: 14px;
+    }
+  }
+
+  .closeWithChildren {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+    border-radius: 2px;
+    background: var(--colorBg) 40;
+    /* display: flex; */
+    align-items: center;
+    justify-content: center;
+    display: none;
+    transform: rotate(45deg);
+
+    &:hover {
+      background: var(--colorBg) 80;
+    }
+
+    svg {
+      fill: var(--colorFg);
+      height: 14px;
+    }
+  }
+
+  .add {
+    height: 1.2em;
+    aspect-ratio: 1/1;
+    border-radius: 2px;
+    background: var(--colorFg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      fill: var(--colorBg);
+      height: 12px;
+    }
+  }
+
+  &:hover {
+    .close,
+    .closeWithChildren {
+      display: flex;
+    }
+  }
+
+  &:hover .add {
+    background: var(--colorAccentFg);
+  }
+}
+
+.tabWrapper {
+  position: relative;
+  .popup {
+    --left: calc(1.2em + 6px + 6px + var(--offset));
+    position: absolute;
+    top: calc(100% + 2px);
+    left: var(--left);
+    display: none;
+    z-index: 1000;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 0px 4px 2px var(--colorBg) 75;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--colorBg);
+    width: calc(100% - var(--left));
+    overflow: hidden;
+    padding: 6px;
+    transition: opacity 0.05s;
+
+    .tabTitle {
+      font-size: 0.8;
+      font-weight: 400;
+    }
+
+    .tabUrl {
+      font-size: 0.8em;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 100%;
+      opacity: 0.8;
+    }
+
+    .thumbnail {
+      width: 200px;
+      margin: 12px auto;
+      margin-top: 6px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.menu {
+  position: absolute;
+  padding: 6px;
+  border-radius: 4px;
+  z-index: 100000000000000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 12px 24px -12px rgba(0, 0, 0, 0.5);
+
+  & > * {
+    padding: 5px 36px;
+    padding-left: 36px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu {
+    background: #292a2d;
+    & > * {
+      color: white;
+
+      &:hover {
+        background: #3c4043;
+      }
+    }
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .menu {
+    background: white;
+
+    & > * {
+      color: black;
+
+      &:hover {
+        background: #e8e8e9;
+      }
+    }
+  }
+}

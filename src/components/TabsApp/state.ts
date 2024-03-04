@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { TabsApi, VivaldiTab } from "../../api";
 
 class TabsAppState {
@@ -17,9 +17,19 @@ class TabsAppState {
   pos: Record<string, string> = {};
   contextTabId: number | null = null;
 
+  tabsUpdating: boolean = false;
+
   constructor(api: TabsApi) {
     makeAutoObservable(this);
     this.api = api;
+  }
+
+  get activeTab() {
+    return this.tabs.find((t) => t.active);
+  }
+
+  setTabsUpdating(updating: boolean) {
+    this.tabsUpdating = updating;
   }
 
   setPos(pos: Record<string, string>) {
@@ -90,6 +100,23 @@ class TabsAppState {
       this.tabs = flatTabsTree;
       this.levels = updatedLevels;
     });
+
+    // In case where the active tab is a panel, we need to activate a different tab.
+    // Otherwise, there will be no active tab displayed, and some strange side effects will occur in this app.
+    const activeTab = this.tabs.find((t) => t.active);
+    if (!activeTab || this.checkIsPanel(activeTab)) {
+      const newActiveTab = this.tabs.find((t) => !this.checkIsPanel(t));
+      if (newActiveTab) {
+        await this.api.update(newActiveTab.id as number, { active: true });
+      }
+    }
+  }
+
+  checkIsPanel(tab: VivaldiTab) {
+    if (!tab.vivExtData) return false;
+
+    const data = JSON.parse(tab.vivExtData);
+    return !!data.panelId;
   }
 
   onExternalRemove(tabId: number) {

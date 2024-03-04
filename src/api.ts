@@ -1,16 +1,8 @@
 import React from "react";
 
-export type VivaldiTab = {
+export interface VivaldiTab extends chrome.tabs.Tab {
   vivExtData?: string;
-  id: number | string;
-  active: boolean;
-  audible: boolean;
-  favIconUrl?: string;
-  title: string;
-  url?: string;
-  openerTabId?: number;
-  windowId?: number;
-};
+}
 
 export class EventBase<Cb extends CallableFunction> {
   listeners: Cb[] = [];

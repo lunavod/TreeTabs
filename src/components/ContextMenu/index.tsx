@@ -10,14 +10,14 @@ function ContextMenu({
 }: {
   contextTab: VivaldiTab | null;
   tabs: VivaldiTab[];
-  tabParentMap: React.MutableRefObject<Record<number, number | undefined>>;
+  tabParentMap: Record<number, number | undefined>;
   pos: Record<string, string>;
 }) {
   const api = useApi();
 
   const onCloseWithChildren = (e: React.MouseEvent, tab: VivaldiTab) => {
     e.preventDefault();
-    const tabsMap = tabParentMap.current;
+    const tabsMap = tabParentMap;
     const tmp = [tab];
     let newActiveTab: number;
     if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
@@ -40,7 +40,7 @@ function ContextMenu({
 
   const onCloseOnlyChildren = (e: React.MouseEvent, tab: VivaldiTab) => {
     e.preventDefault();
-    const tabsMap = tabParentMap.current;
+    const tabsMap = tabParentMap;
     const tmp: VivaldiTab[] = [];
     let newActiveTab: number;
     if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)

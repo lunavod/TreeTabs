@@ -222,6 +222,36 @@ class TabsAppState {
 
     this.markBigUpdateEnd(true);
   }
+
+  async closeAllAbove(tab: VivaldiTab) {
+    this.markBigUpdateStart();
+
+    const tabIndex = this.tabs.findIndex((t) => t.id === tab.id);
+    const targetTabs = this.tabs.slice(0, tabIndex);
+
+    if (targetTabs.some((t) => t.active)) {
+      await this.api.update(this.tabs[tabIndex].id as number, { active: true });
+    }
+
+    await Promise.all(targetTabs.map((t) => this.api.remove(t.id as number)));
+
+    this.markBigUpdateEnd(true);
+  }
+
+  async closeAllBelow(tab: VivaldiTab) {
+    this.markBigUpdateStart();
+
+    const tabIndex = this.tabs.findIndex((t) => t.id === tab.id);
+    const targetTabs = this.tabs.slice(tabIndex + 1);
+
+    if (targetTabs.some((t) => t.active)) {
+      await this.api.update(this.tabs[tabIndex].id as number, { active: true });
+    }
+
+    await Promise.all(targetTabs.map((t) => this.api.remove(t.id as number)));
+
+    this.markBigUpdateEnd(true);
+  }
 }
 
 export default TabsAppState;

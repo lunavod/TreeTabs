@@ -1,9 +1,7 @@
 import { toJS } from "mobx";
-import { VivaldiTab } from "../../api";
 import { useGlobalState } from "../../state";
 import "./styles.module.css";
 import { observer } from "mobx-react-lite";
-import { ErrorBoundary } from "react-error-boundary";
 
 const ContextMenu = observer(() => {
   const globalState = useGlobalState();
@@ -19,33 +17,11 @@ const ContextMenu = observer(() => {
   };
 
   const onCloseTop = () => {
-    const activeIndex = globalState.tabs.findIndex((t) => !!t.active);
-    const index = globalState.tabs.findIndex(
-      (t) => t.id === globalState.contextTabId
-    );
-    const tmp = globalState.tabs.slice(0, index);
-
-    if (activeIndex < index)
-      globalState.api.update(globalState.tabs[index].id as number, {
-        active: true,
-      });
-
-    tmp.forEach((t) => globalState.api.remove(t.id as number));
+    globalState.closeAllAbove(globalState.contextTab);
   };
 
   const onCloseBottom = () => {
-    const activeIndex = globalState.tabs.findIndex((t) => !!t.active);
-    const index = globalState.tabs.findIndex(
-      (t) => t.id === globalState.contextTabId
-    );
-    const tmp = globalState.tabs.slice(index + 1);
-
-    if (activeIndex > index)
-      globalState.api.update(globalState.tabs[index].id as number, {
-        active: true,
-      });
-
-    tmp.forEach((t) => globalState.api.remove(t.id as number));
+    globalState.closeAllBelow(globalState.contextTab);
   };
 
   if (!globalState.pos.left && !globalState.pos.right) return <></>;

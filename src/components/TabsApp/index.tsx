@@ -69,6 +69,7 @@ const TabsApp = observer(() => {
   return (
     <div styleName="app">
       <div styleName="content">
+        {/* {state.bigTabsUpdateInProgress && <div>UPDATE IN PROGRESS</div>} */}
         <div styleName="tabs">
           {state.tabs.map((tab) => (
             <TabElement tab={tab} key={tab.id} onContextMenu={onContextMenu} />

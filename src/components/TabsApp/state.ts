@@ -127,6 +127,19 @@ class TabsAppState {
       }
     });
 
+    if (this.activeTab?.id === tabId) {
+      const tabIndex = this.validTabs.findIndex((t) => t.id === tabId);
+      if (tabIndex > 0) {
+        this.api.update(this.validTabs[tabIndex - 1].id as number, {
+          active: true,
+        });
+      } else if (this.validTabs.length > 1) {
+        this.api.update(this.validTabs[1].id as number, { active: true });
+      } else {
+        this.api.create({ active: true });
+      }
+    }
+
     this.reloadTabs();
   }
 

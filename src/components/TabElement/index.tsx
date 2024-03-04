@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { VivaldiTab, useApi } from "../../api";
+import { VivaldiTab } from "../../api";
 
 import styles from "./styles.module.css";
 import clsx from "clsx";
@@ -7,22 +7,19 @@ import { useRef, useState, useEffect } from "react";
 import FileQuestionIcon from "../../assets/icons/solid/file-circle-question.svg";
 import XmarkIcon from "../../assets/icons/solid/xmark.svg";
 import VolumeIndicator from "../VolumeIndicator";
+import { useGlobalState } from "../../state";
+import { toJS } from "mobx";
 
 const TabElement = observer(
   ({
     tab,
-    tabs,
-    tabsMap,
-    level,
     onContextMenu,
   }: {
     tab: VivaldiTab;
-    tabs: VivaldiTab[];
-    tabsMap: Record<number, number | undefined>;
-    level: number;
     onContextMenu: (e: React.MouseEvent, tab: VivaldiTab) => any;
   }) => {
-    const api = useApi();
+    const globalState = useGlobalState();
+
     const onClick = (e: React.MouseEvent, tab: VivaldiTab) => {
       const target = e.target as HTMLElement;
 
@@ -37,20 +34,21 @@ const TabElement = observer(
       }
 
       console.log("ACTIVATING");
-      api.update(tab.id as number, { active: true });
+      globalState.api.update(tab.id as number, { active: true });
     };
 
     const onCloseClick = (e: React.MouseEvent, tab: VivaldiTab) => {
       e.preventDefault();
-      let newActiveTab: number = tabs.find((t) => t.active === true)
+      let newActiveTab: number = globalState.tabs.find((t) => t.active === true)
         ?.id as number;
-      if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
-        newActiveTab = tabs[tabs.findIndex((t) => t.id === tab.id) - 1]
-          .id as number;
+      if (tab.active && globalState.tabs.findIndex((t) => t.id === tab.id) > 0)
+        newActiveTab = globalState.tabs[
+          globalState.tabs.findIndex((t) => t.id === tab.id) - 1
+        ].id as number;
 
-      api.remove(tab.id as number).then(() => {
+      globalState.api.remove(tab.id as number).then(() => {
         if (tab.active) return;
-        api.update(newActiveTab, { active: true });
+        globalState.api.update(newActiveTab, { active: true });
       });
     };
 
@@ -96,8 +94,9 @@ const TabElement = observer(
       if (!ref.current) return;
       ref.current.addEventListener(
         "contextmenu",
-        // @ts-expect-error I dont remember why I did this
-        (e: React.MouseEvent<Element, MouseEvent>) => onContextMenu(e, tab)
+        // @ts-expect-error I don't remember why I did this
+        (e: React.MouseEvent<Element, MouseEvent>) =>
+          onContextMenu(e, toJS(tab))
       );
     }, []);
 
@@ -106,7 +105,9 @@ const TabElement = observer(
         styleName="tabWrapper"
         style={
           {
-            "--offset": tab.openerTabId ? level * 12 + "px" : "0px",
+            "--offset": tab.openerTabId
+              ? globalState.levels[tab.id] * 12 + "px"
+              : "0px",
           } as React.CSSProperties
         }
       >

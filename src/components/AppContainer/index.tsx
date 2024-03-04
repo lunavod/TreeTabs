@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { TabsApi, ApiContext } from "../../api";
+import { TabsApi } from "../../api";
 import ThemeInjector from "../ThemeInjector";
 import TabsApp from "../TabsApp";
+import TabsAppState, { GlobalStateContext } from "../../state";
+import { observer } from "mobx-react-lite";
 
-function TabsAppContainer() {
+const TabsAppContainer = observer(() => {
   const [extensionId, setExtensionId] = useState<string>("");
-  const [api, setApi] = useState<TabsApi | null>(null);
   const [incognito, setIncognito] = useState<boolean>(false);
+  const [state, setState] = useState<TabsAppState | null>(null);
 
   const getExtensionId = () => {
     const container = document.querySelector("#extension-id-container");
@@ -33,13 +35,13 @@ function TabsAppContainer() {
 
       setExtensionId(newId);
 
-      if (api) {
-        api.changeExtensionId(newId);
-        api.checkIncognito().then(setIncognito);
+      if (state) {
+        state.api.changeExtensionId(newId);
+        state.api.checkIncognito().then(setIncognito);
       } else {
-        const newApi = new TabsApi(newId);
-        setApi(newApi);
-        newApi.checkIncognito().then(setIncognito);
+        const newState = new TabsAppState(new TabsApi(newId));
+        newState.api.checkIncognito().then(setIncognito);
+        setState(newState);
       }
     });
     observer.observe(document.querySelector("#extension-id-container"), {
@@ -49,14 +51,14 @@ function TabsAppContainer() {
     return () => observer.disconnect();
   }, []);
 
-  if (!api) return <div>Loading...</div>;
+  if (!state) return <div>Loading...</div>;
 
   return (
-    <ApiContext.Provider value={api}>
+    <GlobalStateContext.Provider value={state}>
       <ThemeInjector incognito={incognito} />
       <TabsApp />
-    </ApiContext.Provider>
+    </GlobalStateContext.Provider>
   );
-}
+});
 
 export default TabsAppContainer;

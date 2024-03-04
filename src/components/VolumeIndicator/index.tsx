@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import VolumeHighIcon from "../../assets/icons/solid/volume-high.svg";
 import VolumeLowIcon from "../../assets/icons/solid/volume-low.svg";
 import "./styles.module.css";
+import { observer } from "mobx-react-lite";
 
-const VolumeIndicator = () => {
+const VolumeIndicator = observer(() => {
   const icons = [VolumeLowIcon, VolumeHighIcon];
   const [i, setI] = useState(0);
 
@@ -21,6 +22,6 @@ const VolumeIndicator = () => {
       <Icon />
     </div>
   );
-};
+});
 
 export default VolumeIndicator;

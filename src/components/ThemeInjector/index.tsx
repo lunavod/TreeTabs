@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import themePresets from "../../utils/theme_presets";
 import ThemeHelper from "../../utils/themes";
+import { observer } from "mobx-react-lite";
 
-const ThemeInjector = ({ incognito }: { incognito: boolean }) => {
+const ThemeInjector = observer(({ incognito }: { incognito: boolean }) => {
   const [selectedTheme, setSelectedTheme] = useState(
     incognito ? "private" : "dark"
   );
@@ -25,6 +26,6 @@ const ThemeInjector = ({ incognito }: { incognito: boolean }) => {
       `}</style>
     </div>
   );
-};
+});
 
 export default ThemeInjector;

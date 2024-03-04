@@ -1,108 +1,64 @@
-import { VivaldiTab, useApi } from "../../api";
+import { toJS } from "mobx";
+import { VivaldiTab } from "../../api";
+import { useGlobalState } from "../../state";
 import "./styles.module.css";
 import { observer } from "mobx-react-lite";
+import { ErrorBoundary } from "react-error-boundary";
 
-const ContextMenu = observer(
-  ({
-    contextTab,
-    tabs,
-    tabParentMap,
-    pos,
-  }: {
-    contextTab: VivaldiTab | null;
-    tabs: VivaldiTab[];
-    tabParentMap: Record<number, number | undefined>;
-    pos: Record<string, string>;
-  }) => {
-    const api = useApi();
+const ContextMenu = observer(() => {
+  const globalState = useGlobalState();
 
-    const onCloseWithChildren = (e: React.MouseEvent, tab: VivaldiTab) => {
-      e.preventDefault();
-      const tabsMap = tabParentMap;
-      const tmp = [tab];
-      let newActiveTab: number;
-      if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
-        newActiveTab = tabs[tabs.findIndex((t) => t.id === tab.id) - 1]
-          .id as number;
-      const rec = (parentId: number) => {
-        tabs
-          .filter((t) => tabsMap[t.id as number] === parentId)
-          .forEach((t) => {
-            tmp.push(t);
-            rec(t.id as number);
-          });
-      };
-      rec(tab.id as number);
+  const onCloseWithChildren = (e: React.MouseEvent) => {
+    e.preventDefault();
+    globalState.closeBranch(globalState.contextTab, true);
+  };
 
-      Promise.all(tmp.map((t) => api.remove(t.id as number))).then(() => {
-        if (newActiveTab) api.update(newActiveTab as number, { active: true });
-      });
-    };
+  const onCloseOnlyChildren = (e: React.MouseEvent) => {
+    e.preventDefault();
+    globalState.closeBranch(globalState.contextTab, false);
+  };
 
-    const onCloseOnlyChildren = (e: React.MouseEvent, tab: VivaldiTab) => {
-      e.preventDefault();
-      const tabsMap = tabParentMap;
-      const tmp: VivaldiTab[] = [];
-      let newActiveTab: number;
-      if (tab.active && tabs.findIndex((t) => t.id === tab.id) > 0)
-        newActiveTab = tabs[tabs.findIndex((t) => t.id === tab.id) - 1]
-          .id as number;
-      const rec = (parentId: number) => {
-        tabs
-          .filter((t) => tabsMap[t.id as number] === parentId)
-          .forEach((t) => {
-            tmp.push(t);
-            rec(t.id as number);
-          });
-      };
-      rec(tab.id as number);
-
-      Promise.all(tmp.map((t) => api.remove(t.id as number))).then(() => {
-        if (newActiveTab) api.update(newActiveTab as number, { active: true });
-      });
-    };
-
-    const onCloseTop = (tab: VivaldiTab) => {
-      const activeIndex = tabs.findIndex((t) => !!t.active);
-      const index = tabs.findIndex((t) => t.id === tab.id);
-      const tmp = tabs.slice(0, index);
-
-      if (activeIndex < index)
-        api.update(tabs[index].id as number, { active: true });
-
-      tmp.forEach((t) => api.remove(t.id as number));
-    };
-
-    const onCloseBottom = (tab: VivaldiTab) => {
-      const activeIndex = tabs.findIndex((t) => !!t.active);
-      const index = tabs.findIndex((t) => t.id === tab.id);
-      const tmp = tabs.slice(index + 1);
-
-      if (activeIndex > index)
-        api.update(tabs[index].id as number, { active: true });
-
-      tmp.forEach((t) => api.remove(t.id as number));
-    };
-
-    if (!pos.left && !pos.right) return <></>;
-
-    return (
-      <div style={pos} styleName="menu">
-        <div onClick={(e) => onCloseWithChildren(e, contextTab as VivaldiTab)}>
-          Close with children
-        </div>
-        <div onClick={(e) => onCloseOnlyChildren(e, contextTab as VivaldiTab)}>
-          Close children
-        </div>
-        <div onClick={() => onCloseBottom(contextTab as VivaldiTab)}>
-          Close all below
-        </div>
-        <div onClick={() => onCloseTop(contextTab as VivaldiTab)}>
-          Close all above
-        </div>
-      </div>
+  const onCloseTop = () => {
+    const activeIndex = globalState.tabs.findIndex((t) => !!t.active);
+    const index = globalState.tabs.findIndex(
+      (t) => t.id === globalState.contextTabId
     );
-  }
-);
+    const tmp = globalState.tabs.slice(0, index);
+
+    if (activeIndex < index)
+      globalState.api.update(globalState.tabs[index].id as number, {
+        active: true,
+      });
+
+    tmp.forEach((t) => globalState.api.remove(t.id as number));
+  };
+
+  const onCloseBottom = () => {
+    const activeIndex = globalState.tabs.findIndex((t) => !!t.active);
+    const index = globalState.tabs.findIndex(
+      (t) => t.id === globalState.contextTabId
+    );
+    const tmp = globalState.tabs.slice(index + 1);
+
+    if (activeIndex > index)
+      globalState.api.update(globalState.tabs[index].id as number, {
+        active: true,
+      });
+
+    tmp.forEach((t) => globalState.api.remove(t.id as number));
+  };
+
+  if (!globalState.pos.left && !globalState.pos.right) return <></>;
+
+  return (
+    // Not converting pos with toJS will cause an error "Dynamic observable objects cannot be frozen"
+    <div style={toJS(globalState.pos)} styleName="menu">
+      <div onClick={(e) => onCloseWithChildren(e)}>Close with children</div>
+      <div onClick={(e) => onCloseOnlyChildren(e)}>Close children</div>
+      <div onClick={() => onCloseBottom()}>Close all below</div>
+      <div onClick={() => onCloseTop()}>Close all above</div>
+    </div>
+  );
+});
 
 export default ContextMenu;

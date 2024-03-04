@@ -145,6 +145,3 @@ export class TabsApi {
     });
   }
 }
-
-export const ApiContext = React.createContext<TabsApi>(null);
-export const useApi = () => React.useContext(ApiContext);

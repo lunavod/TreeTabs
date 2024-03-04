@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import React from "react";
 
 import "./styles.module.css";
 import TabElement from "../TabElement";
-import { VivaldiTab, useApi } from "../../api";
+import { VivaldiTab } from "../../api";
 import AddNewTab from "../TabElement/AddNewTab";
 import ContextMenu from "../ContextMenu";
-import TabsAppState from "./state";
+import { useGlobalState } from "../../state";
 import { observer } from "mobx-react-lite";
 
 const TabsApp = observer(() => {
-  const api = useApi();
-  const [state] = useState(() => new TabsAppState(api));
+  const state = useGlobalState();
 
   useEffect(() => {
     state.reloadTabs();
@@ -19,10 +18,10 @@ const TabsApp = observer(() => {
     const onRemove = (tabId: number) => state.onExternalRemove(tabId);
     const reloadTabs = () => state.reloadTabs();
 
-    api.onUpdated.addListener(reloadTabs);
-    api.onRemoved.addListener(onRemove);
-    api.onMoved.addListener(reloadTabs);
-    api.onActivated.addListener(reloadTabs);
+    state.api.onUpdated.addListener(reloadTabs);
+    state.api.onRemoved.addListener(onRemove);
+    state.api.onMoved.addListener(reloadTabs);
+    state.api.onActivated.addListener(reloadTabs);
 
     const onClick = () => {
       state.setPos({});
@@ -34,17 +33,17 @@ const TabsApp = observer(() => {
     // const int = setInterval(reloadTabs, 1000);
 
     return () => {
-      api.onUpdated.removeListener(reloadTabs);
-      api.onRemoved.removeListener(onRemove);
-      api.onMoved.removeListener(reloadTabs);
-      api.onActivated.removeListener(reloadTabs);
+      state.api.onUpdated.removeListener(reloadTabs);
+      state.api.onRemoved.removeListener(onRemove);
+      state.api.onMoved.removeListener(reloadTabs);
+      state.api.onActivated.removeListener(reloadTabs);
       document.removeEventListener("click", onClick);
       // clearInterval(int);
     };
-  }, [api.onActivated, api.onMoved, api.onRemoved, api.onUpdated, state]);
+  }, [state]);
 
   const onOpenNewClick = () => {
-    api.create({
+    state.api.create({
       active: true,
     });
   };
@@ -71,25 +70,13 @@ const TabsApp = observer(() => {
     <div styleName="app">
       <div styleName="content">
         <div styleName="tabs">
-          {state.validTabs.map((tab) => (
-            <TabElement
-              tab={tab}
-              tabs={state.validTabs}
-              tabsMap={state.tabParentMap}
-              level={state.levels[tab.id as number]}
-              key={tab.id}
-              onContextMenu={onContextMenu}
-            />
+          {state.tabs.map((tab) => (
+            <TabElement tab={tab} key={tab.id} onContextMenu={onContextMenu} />
           ))}
           <AddNewTab onClick={onOpenNewClick} />
         </div>
       </div>
-      <ContextMenu
-        contextTab={state.contextTab}
-        tabs={state.validTabs}
-        tabParentMap={state.tabParentMap}
-        pos={state.pos}
-      />
+      <ContextMenu />
     </div>
   );
 });

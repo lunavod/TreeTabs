@@ -1,10 +1,12 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
-import { TabsApi, VivaldiTab } from "../../api";
+import { TabsApi, VivaldiTab } from "./api";
+import { createContext, useContext } from "react";
 
 class TabsAppState {
   api: TabsApi;
-  // `tabs` represents the full list of tabs in the current window.
-  private tabs: VivaldiTab[] = [];
+  // `__tabs` represents the full list of tabs in the current window.
+  // It should only be accessed through the `tabs` getter, which filters out panels and tabs without id.
+  private __tabs: VivaldiTab[] = [];
 
   // `levels` is a map of tab IDs to their depth in the tabs tree.
   levels: Record<number, number> = {};
@@ -17,19 +19,49 @@ class TabsAppState {
   pos: Record<string, string> = {};
   contextTabId: number | null = null;
 
-  tabsUpdating: boolean = false;
+  bigTabsUpdateInProgress: boolean = false;
+  private _bigTabsUpdateTimeout: NodeJS.Timeout | null = null;
 
   constructor(api: TabsApi) {
     makeAutoObservable(this);
     this.api = api;
   }
 
-  get activeTab() {
-    return this.tabs.find((t) => t.active);
+  get tabs() {
+    return this.__tabs.filter((t) => {
+      if (!t.id) return false;
+
+      if (this.checkIsPanel(t)) return false;
+
+      return true;
+    });
   }
 
-  setTabsUpdating(updating: boolean) {
-    this.tabsUpdating = updating;
+  get activeTab() {
+    return this.__tabs.find((t) => t.active);
+  }
+
+  markBigUpdateStart() {
+    this.bigTabsUpdateInProgress = true;
+    this._bigTabsUpdateTimeout = setTimeout(() => {
+      console.warn(
+        "Big tabs update is taking too long, marking as finished and reloading tabs"
+      );
+      this.markBigUpdateEnd(true);
+    }, 10000);
+  }
+
+  markBigUpdateEnd(reload = false) {
+    this.bigTabsUpdateInProgress = false;
+
+    if (this._bigTabsUpdateTimeout) {
+      clearTimeout(this._bigTabsUpdateTimeout);
+      this._bigTabsUpdateTimeout = null;
+    }
+
+    if (reload) {
+      this.reloadTabs();
+    }
   }
 
   setPos(pos: Record<string, string>) {
@@ -41,7 +73,7 @@ class TabsAppState {
   }
 
   get contextTab(): VivaldiTab | null {
-    return this.tabs.find((t) => t.id === this.contextTabId) || null;
+    return this.__tabs.find((t) => t.id === this.contextTabId) || null;
   }
 
   async ensureWindowId() {
@@ -55,7 +87,12 @@ class TabsAppState {
     }
   }
 
-  async reloadTabs() {
+  async reloadTabs(ignoreBigUpdate = false) {
+    if (this.bigTabsUpdateInProgress && !ignoreBigUpdate) {
+      console.warn("Big tabs update in progress, skipping reload");
+      return;
+    }
+
     await this.ensureWindowId();
 
     const tabs = await this.api.query({ windowId: this.windowId });
@@ -97,15 +134,15 @@ class TabsAppState {
     mapTabs(topLevelTabs, 0);
 
     runInAction(() => {
-      this.tabs = flatTabsTree;
+      this.__tabs = flatTabsTree;
       this.levels = updatedLevels;
     });
 
     // In case where the active tab is a panel, we need to activate a different tab.
     // Otherwise, there will be no active tab displayed, and some strange side effects will occur in this app.
-    const activeTab = this.tabs.find((t) => t.active);
+    const activeTab = this.__tabs.find((t) => t.active);
     if (!activeTab || this.checkIsPanel(activeTab)) {
-      const newActiveTab = this.tabs.find((t) => !this.checkIsPanel(t));
+      const newActiveTab = this.__tabs.find((t) => !this.checkIsPanel(t));
       if (newActiveTab) {
         await this.api.update(newActiveTab.id as number, { active: true });
       }
@@ -128,13 +165,13 @@ class TabsAppState {
     });
 
     if (this.activeTab?.id === tabId) {
-      const tabIndex = this.validTabs.findIndex((t) => t.id === tabId);
+      const tabIndex = this.tabs.findIndex((t) => t.id === tabId);
       if (tabIndex > 0) {
-        this.api.update(this.validTabs[tabIndex - 1].id as number, {
+        this.api.update(this.tabs[tabIndex - 1].id as number, {
           active: true,
         });
-      } else if (this.validTabs.length > 1) {
-        this.api.update(this.validTabs[1].id as number, { active: true });
+      } else if (this.tabs.length > 1) {
+        this.api.update(this.tabs[1].id as number, { active: true });
       } else {
         this.api.create({ active: true });
       }
@@ -143,21 +180,51 @@ class TabsAppState {
     this.reloadTabs();
   }
 
-  /**
-   * Returns the tabs that are not panels.
-   */
-  get validTabs() {
-    return this.tabs.filter((t) => {
-      if (!t.id) return false;
+  async closeBranch(tab: VivaldiTab, includeSelf = true) {
+    this.markBigUpdateStart();
 
-      if (t.vivExtData) {
-        const data = JSON.parse(t.vivExtData);
-        if (data.panelId) return false;
+    const tabIndex = this.tabs.findIndex((t) => t.id === tab.id);
+
+    const findChildrenRecursively = (parentId: number) => {
+      return this.tabs.reduce((acc, t) => {
+        if (this.tabParentMap[t.id as number] === parentId) {
+          acc.push(t);
+          acc.push(...findChildrenRecursively(t.id as number));
+        }
+        return acc;
+      }, []);
+    };
+
+    const targetTabs = includeSelf
+      ? [tab, ...findChildrenRecursively(tab.id as number)]
+      : findChildrenRecursively(tab.id as number);
+    const targetTabIds = targetTabs.map((t) => t.id as number);
+
+    if (targetTabs.some((t) => t.active)) {
+      if (tabIndex > 0) {
+        this.api.update(this.tabs[tabIndex - 1].id as number, { active: true });
+      } else {
+        const survivingTabs = this.tabs.filter(
+          (t) => !targetTabIds.includes(t.id as number)
+        );
+
+        if (survivingTabs.length > 0) {
+          await this.api.update(survivingTabs[0].id as number, {
+            active: true,
+          });
+        } else {
+          await this.api.create({ active: true });
+        }
       }
+    }
 
-      return true;
-    });
+    await Promise.all(targetTabs.map((t) => this.api.remove(t.id as number)));
+
+    this.markBigUpdateEnd(true);
   }
 }
 
 export default TabsAppState;
+
+export const GlobalStateContext = createContext<TabsAppState>(null);
+export const useGlobalState = () => useContext(GlobalStateContext);

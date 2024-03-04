@@ -1,3 +1,15 @@
 .volume {
   justify-content: flex-start;
+  height: 1.2em;
+  aspect-ratio: 1/1;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    fill: var(--colorFg);
+    height: 14px;
+    margin-right: auto;
+  }
 }

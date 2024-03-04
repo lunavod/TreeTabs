@@ -5,7 +5,6 @@ declare const classNames: {
   readonly active: "active";
   readonly transparent: "transparent";
   readonly noFavicon: "noFavicon";
-  readonly volume: "volume";
   readonly title: "title";
   readonly add: "add";
   readonly tabWrapper: "tabWrapper";

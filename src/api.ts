@@ -130,11 +130,9 @@ export class TabsApi {
     });
   }
 
-  public checkIncognito() {
-    return chrome.runtime.sendMessage(this.extId, {
-      method: "checkIncognito",
-      type: "custom",
-    });
+  public async checkIncognito() {
+    const tabs = await this.query({ currentWindow: true });
+    return tabs.some((t) => t.incognito);
   }
 
   public changeExtensionId(extId: string) {

@@ -70,6 +70,8 @@ export class TabsApi {
     (highlightInfo: chrome.tabs.TabHighlightInfo) => void
   >;
 
+  public onTabCaptured: EventBase<(tabId: number, dataUrl: string) => void>;
+
   constructor(public extId: string) {
     this.port = chrome.runtime.connect(extId);
     this.port.onDisconnect.addListener(() => {
@@ -85,6 +87,7 @@ export class TabsApi {
     this.onDetached = new EventBase("tabs.onDetached", this.port);
     this.onMoved = new EventBase("tabs.onMoved", this.port);
     this.onHighlighted = new EventBase("tabs.onHighlighted", this.port);
+    this.onTabCaptured = new EventBase("tabs.onTabCaptured", this.port);
   }
 
   public query(info: chrome.tabs.QueryInfo): Promise<VivaldiTab[]> {
@@ -141,6 +144,17 @@ export class TabsApi {
     this.port.onDisconnect.addListener(() => {
       this.changeExtensionId(extId);
     });
+
+    this.onUpdated.reload(this.port);
+    this.onActivated.reload(this.port);
+    this.onCreated.reload(this.port);
+    this.onRemoved.reload(this.port);
+    this.onReplaced.reload(this.port);
+    this.onAttached.reload(this.port);
+    this.onDetached.reload(this.port);
+    this.onMoved.reload(this.port);
+    this.onHighlighted.reload(this.port);
+    this.onTabCaptured.reload(this.port);
   }
 
   public async getVisitedTabIds(): Promise<number[]> {

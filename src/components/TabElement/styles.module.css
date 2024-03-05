@@ -138,9 +138,9 @@
 
 .tabWrapper {
   position: relative;
-  .popup {
+
+  .popupWrapper {
     --left: calc(1.2em + 6px + var(--offset));
-    --right: calc(6px + 6px);
     position: absolute;
     top: calc(100% + 2px);
     left: var(--left);
@@ -152,32 +152,46 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    background: var(--colorBg);
-    width: calc(100% - var(--left) - var(--right));
-    overflow: hidden;
-    padding: 6px;
-    transition: opacity 0.05s;
+    width: calc(100% - var(--left));
 
-    .tabTitle {
-      font-size: 0.8;
-      font-weight: 400;
-    }
-
-    .tabUrl {
-      font-size: 0.8em;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+    .popup {
+      display: flex;
+      gap: 6px;
+      background: var(--colorBg);
+      flex-direction: column;
       overflow: hidden;
-      max-width: 100%;
-      opacity: 0.8;
+      padding: 6px;
+      transition: opacity 0.05s;
+      width: 100%;
+
+      .tabTitle {
+        font-size: 0.8;
+        font-weight: 400;
+      }
+
+      .tabUrl {
+        font-size: 0.8em;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        max-width: 100%;
+        opacity: 0.8;
+      }
     }
 
     .thumbnail {
-      width: 200px;
-      margin: 12px auto;
-      margin-top: 6px;
-      border-radius: 4px;
+      width: 100%;
+    }
+
+    .emptyThumbnail {
+      width: 100%;
+      height: 100px;
+      background: var(--colorAccentBgFadedMore);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8em;
+      opacity: 1;
     }
   }
 }

@@ -9,6 +9,7 @@ class TabsAppState {
   private __tabs: VivaldiTab[] = [];
 
   visitedTabIds: number[] = [];
+  tabPreviewMap: Record<number, string> = {};
 
   // `levels` is a map of tab IDs to their depth in the tabs tree.
   levels: Record<number, number> = {};
@@ -78,12 +79,22 @@ class TabsAppState {
     return this.__tabs.find((t) => t.id === this.contextTabId) || null;
   }
 
+  private onTabCaptured(tabId: number, dataUrl: string) {
+    if (!this.tabs.some((t) => t.id === tabId)) return;
+
+    this.tabPreviewMap[tabId] = dataUrl;
+  }
+
   async ensureInitialized() {
     if (!this.windowIdLoaded) {
       const tab = await this.api.getThisTab();
       console.log("Getting visited tab ids");
       const visitedTabIds = await this.api.getVisitedTabIds();
       console.log("Got them");
+
+      this.api.onTabCaptured.addListener((tabId, dataUrl) =>
+        this.onTabCaptured(tabId, dataUrl)
+      );
 
       runInAction(() => {
         this.windowId = tab.windowId as number;

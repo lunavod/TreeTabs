@@ -69,12 +69,7 @@ const TabElement = observer(
       }
     }
 
-    const getThumbnail = () => {
-      const thumb = JSON.parse(
-        tab.vivExtData ? tab.vivExtData : '{"thumbnail": ""}'
-      ).thumbnail;
-      return thumb;
-    };
+    const thumbnail = globalState.tabPreviewMap[tab.id] || null;
 
     const timer = useRef<null | NodeJS.Timeout>(null);
     const [popupShown, setPopupShown] = useState(false);
@@ -135,9 +130,13 @@ const TabElement = observer(
             <XmarkIcon />
           </div>
         </div>
-        <div styleName="popup" style={{ opacity: popupShown ? 1 : 0 }}>
-          <span styleName="tabTitle">{title}</span>
-          <span styleName="tabUrl">{tab.url}</span>
+        <div styleName="popupWrapper" style={{ opacity: popupShown ? 1 : 0 }}>
+          <div styleName="popup">
+            <span styleName="tabTitle">{title}</span>
+            <span styleName="tabUrl">{tab.url}</span>
+          </div>
+          {thumbnail && <img src={thumbnail} styleName="thumbnail" />}
+          {!thumbnail && <div styleName="emptyThumbnail" />}
           {/* <img src={getThumbnail()} styleName="thumbnail" /> */}
         </div>
       </div>

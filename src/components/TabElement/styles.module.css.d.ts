@@ -9,9 +9,11 @@ declare const classNames: {
   readonly title: "title";
   readonly add: "add";
   readonly tabWrapper: "tabWrapper";
+  readonly popupWrapper: "popupWrapper";
   readonly popup: "popup";
   readonly tabTitle: "tabTitle";
   readonly tabUrl: "tabUrl";
   readonly thumbnail: "thumbnail";
+  readonly emptyThumbnail: "emptyThumbnail";
 };
 export = classNames;

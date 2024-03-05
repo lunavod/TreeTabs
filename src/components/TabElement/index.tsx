@@ -125,7 +125,7 @@ const TabElement = observer(
             </div>
           )}
           {!!tab.audible && <VolumeIndicator />}
-          <span styleName="title">{title}</span>
+          <span styleName="title">{title ? title : tab.url}</span>
           <div styleName="close" onClick={(e) => onCloseClick(e, tab)}>
             <XmarkIcon />
           </div>

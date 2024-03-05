@@ -142,4 +142,11 @@ export class TabsApi {
       this.changeExtensionId(extId);
     });
   }
+
+  public async getVisitedTabIds(): Promise<number[]> {
+    return chrome.runtime.sendMessage(this.extId, {
+      type: "custom",
+      method: "getVisitedTabIds",
+    });
+  }
 }

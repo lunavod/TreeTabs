@@ -8,6 +8,8 @@ class TabsAppState {
   // It should only be accessed through the `tabs` getter, which filters out panels and tabs without id.
   private __tabs: VivaldiTab[] = [];
 
+  visitedTabIds: number[] = [];
+
   // `levels` is a map of tab IDs to their depth in the tabs tree.
   levels: Record<number, number> = {};
   tabParentMap: Record<number, number> = {};
@@ -76,13 +78,17 @@ class TabsAppState {
     return this.__tabs.find((t) => t.id === this.contextTabId) || null;
   }
 
-  async ensureWindowId() {
+  async ensureInitialized() {
     if (!this.windowIdLoaded) {
       const tab = await this.api.getThisTab();
+      console.log("Getting visited tab ids");
+      const visitedTabIds = await this.api.getVisitedTabIds();
+      console.log("Got them");
 
       runInAction(() => {
         this.windowId = tab.windowId as number;
         this.windowIdLoaded = true;
+        this.visitedTabIds = visitedTabIds;
       });
     }
   }
@@ -93,7 +99,7 @@ class TabsAppState {
       return;
     }
 
-    await this.ensureWindowId();
+    await this.ensureInitialized();
 
     const tabs = await this.api.query({ windowId: this.windowId });
 
@@ -136,11 +142,17 @@ class TabsAppState {
     runInAction(() => {
       this.__tabs = flatTabsTree;
       this.levels = updatedLevels;
+      this.visitedTabIds = this.visitedTabIds.filter((id) => id in this.levels);
     });
+
+    const activeTab = this.__tabs.find((t) => t.active);
+
+    if (activeTab && !this.visitedTabIds.includes(activeTab.id as number)) {
+      this.visitedTabIds.push(activeTab.id as number);
+    }
 
     // In case where the active tab is a panel, we need to activate a different tab.
     // Otherwise, there will be no active tab displayed, and some strange side effects will occur in this app.
-    const activeTab = this.__tabs.find((t) => t.active);
     if (!activeTab || this.checkIsPanel(activeTab)) {
       const newActiveTab = this.__tabs.find((t) => !this.checkIsPanel(t));
       if (newActiveTab) {

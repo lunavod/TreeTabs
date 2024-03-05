@@ -114,7 +114,11 @@ const TabElement = observer(
         <div
           ref={ref}
           key={tab.id}
-          styleName={clsx("tab", tab.active && "active")}
+          styleName={clsx(
+            "tab",
+            tab.active && "active",
+            !globalState.visitedTabIds.includes(tab.id) && "unread"
+          )}
           onClick={(e) => onClick(e, tab)}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}

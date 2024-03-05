@@ -2,6 +2,7 @@ declare const classNames: {
   readonly tab: "tab";
   readonly close: "close";
   readonly closeWithChildren: "closeWithChildren";
+  readonly unread: "unread";
   readonly active: "active";
   readonly transparent: "transparent";
   readonly noFavicon: "noFavicon";

@@ -154,6 +154,14 @@ class TabsAppState {
       this.__tabs = flatTabsTree;
       this.levels = updatedLevels;
       this.visitedTabIds = this.visitedTabIds.filter((id) => id in this.levels);
+
+      // Removing previews for tabs that are no longer present
+      this.tabPreviewMap = Object.keys(this.tabPreviewMap).reduce((acc, id) => {
+        if (id in this.levels) {
+          acc[id] = this.tabPreviewMap[id];
+        }
+        return acc;
+      }, {});
     });
 
     const activeTab = this.__tabs.find((t) => t.active);

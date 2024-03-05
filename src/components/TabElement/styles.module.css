@@ -139,7 +139,8 @@
 .tabWrapper {
   position: relative;
   .popup {
-    --left: calc(1.2em + 6px + 6px + var(--offset));
+    --left: calc(1.2em + 6px + var(--offset));
+    --right: calc(6px + 6px);
     position: absolute;
     top: calc(100% + 2px);
     left: var(--left);
@@ -153,7 +154,7 @@
     flex-direction: column;
     gap: 6px;
     background: var(--colorBg);
-    width: calc(100% - var(--left));
+    width: calc(100% - var(--left) - var(--right));
     overflow: hidden;
     padding: 6px;
     transition: opacity 0.05s;

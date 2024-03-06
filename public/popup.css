@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  background: var(--colorBgLightIntense);
+  width: 640px;
+  height: 360px;
+  max-height: 360px;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}

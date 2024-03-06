@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { TabsApi, VivaldiTab } from "./api";
 import { createContext, useContext } from "react";
+import { DefaultThemeSettings, ThemeSettingsWrapper } from "./utils/themes";
 
 class TabsAppState {
   api: TabsApi;
@@ -25,9 +26,17 @@ class TabsAppState {
   bigTabsUpdateInProgress: boolean = false;
   private _bigTabsUpdateTimeout: NodeJS.Timeout | null = null;
 
+  themeSettings: ThemeSettingsWrapper = DefaultThemeSettings;
+
   constructor(api: TabsApi) {
     makeAutoObservable(this);
     this.api = api;
+    this.api.getThemeSettings().then((settings) =>
+      runInAction(() => {
+        console.log("Updated settings", settings);
+        this.themeSettings = settings;
+      })
+    );
   }
 
   get tabs() {
@@ -95,6 +104,11 @@ class TabsAppState {
       this.api.onTabCaptured.addListener((tabId, dataUrl) =>
         this.onTabCaptured(tabId, dataUrl)
       );
+
+      this.api.onThemeSettingsUpdated.addListener((settings) => {
+        console.log("Updated settings event", settings);
+        runInAction(() => (this.themeSettings = settings));
+      });
 
       runInAction(() => {
         this.windowId = tab.windowId as number;

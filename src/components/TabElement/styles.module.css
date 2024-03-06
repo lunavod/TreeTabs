@@ -5,14 +5,19 @@
   gap: 6px;
   overflow: hidden;
   align-items: center;
-  background: var(--colorAccentBgAlphaHeavy);
-  color: var(--colorAccentFg);
+  background: var(--tabBg);
+  color: var(--tabColor);
   margin-left: var(--offset);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--radius);
+  transition:
+    background 0.05s,
+    color 0.05s,
+    box-shadow 0.05s;
 
   &:hover {
-    background: var(--colorAccentBgAlpha);
+    background: var(--tabBgHover);
+    color: var(--tabColorHover);
   }
 
   &.unread {
@@ -24,8 +29,8 @@
   }
 
   &.active {
-    background: var(--colorBg);
-    color: var(--colorFg);
+    background: var(--tabBgActive);
+    color: var(--tabColorActive);
     box-shadow: 0 0px 2px 0px var(--colorBg) 75;
   }
 

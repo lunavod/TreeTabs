@@ -1,0 +1,54 @@
+.customThemeInput {
+  display: none;
+}
+
+.selectWrapper {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  min-width: 60px;
+  max-width: 100%;
+  position: relative;
+  margin: 0;
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right: 6px;
+    background-color: currentColor;
+    mask-image: var(--svgArrow);
+    mask-repeat: no-repeat;
+    mask-position: 0 0;
+    mask-size: 16px 16px;
+    pointer-events: none;
+  }
+}
+
+.wrapper {
+  display: flex;
+  gap: 24px;
+
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.subContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 6px 0px 6px 24px;
+
+  .selectWrapper {
+    max-width: 120px;
+  }
+
+  .selectCustomWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}

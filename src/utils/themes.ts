@@ -1,5 +1,32 @@
 import chroma from "chroma-js";
 
+export type ThemeModeSettings = {
+  mode: "custom" | "preset";
+  customThemeData: ThemeSettings | null;
+  preset: string;
+  accentMode: "accent" | "highlight" | "bg";
+};
+
+export type ThemeSettingsWrapper = {
+  regular: ThemeModeSettings;
+  incognito: ThemeModeSettings;
+};
+
+export const DefaultThemeSettings: ThemeSettingsWrapper = {
+  regular: {
+    mode: "preset",
+    preset: "dark",
+    customThemeData: null,
+    accentMode: "accent",
+  },
+  incognito: {
+    mode: "preset",
+    preset: "private",
+    customThemeData: null,
+    accentMode: "accent",
+  },
+};
+
 export type ColorPalette = {
   colorFg: string;
   colorFgAlpha: string;
@@ -82,6 +109,7 @@ export interface ThemeSettings {
   colorWindowBg: string;
   contrast: number;
   radius: number;
+  name: string;
 }
 
 type ColorPaletteRaw = {

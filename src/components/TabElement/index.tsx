@@ -135,8 +135,8 @@ const TabElement = observer(
             <span styleName="tabTitle">{title}</span>
             <span styleName="tabUrl">{tab.url}</span>
           </div>
-          {thumbnail && <img src={thumbnail} styleName="thumbnail" />}
-          {!thumbnail && <div styleName="emptyThumbnail" />}
+          {/* {thumbnail && <img src={thumbnail} styleName="thumbnail" />} */}
+          {/* {!thumbnail && <div styleName="emptyThumbnail" />} */}
           {/* <img src={getThumbnail()} styleName="thumbnail" /> */}
         </div>
       </div>

@@ -1,0 +1,26 @@
+declare const classNames: {
+  readonly themeDark: "themeDark";
+  readonly root: "root";
+  readonly vivaldiSelector: "vivaldiSelector";
+  readonly innerControl: "innerControl";
+  readonly maxColumns: "maxColumns";
+  readonly dateInput: "dateInput";
+  readonly tabStrip: "tabStrip";
+  readonly tabPosition: "tabPosition";
+  readonly topmenu: "topmenu";
+  readonly menu: "menu";
+  readonly horizontal: "horizontal";
+  readonly tabGroupIndicator: "tabGroupIndicator";
+  readonly pageZoomControls: "pageZoomControls";
+  readonly selectable: "selectable";
+  readonly native: "native";
+  readonly noAppDragging: "noAppDragging";
+  readonly toolbarStatusbar: "toolbarStatusbar";
+  readonly circular: "circular";
+  readonly formButton: "formButton";
+  readonly sidebar: "sidebar";
+  readonly tab: "tab";
+  readonly selected: "selected";
+  readonly content: "content";
+};
+export = classNames;

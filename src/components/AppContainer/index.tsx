@@ -4,6 +4,7 @@ import ThemeInjector from "../ThemeInjector";
 import TabsApp from "../TabsApp";
 import TabsAppState, { GlobalStateContext } from "../../state";
 import { observer } from "mobx-react-lite";
+import styles from "./styles.module.css";
 
 const TabsAppContainer = observer(() => {
   const [extensionId, setExtensionId] = useState<string>("");
@@ -49,13 +50,22 @@ const TabsAppContainer = observer(() => {
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [extensionId, state]);
 
   if (!state) return <div>Loading...</div>;
 
   return (
     <GlobalStateContext.Provider value={state}>
-      <ThemeInjector incognito={incognito} />
+      <ThemeInjector
+        incognito={incognito}
+        themeSettings={state.themeSettings}
+        darkBodyClass={styles.darkTheme}
+        accentModeClasses={{
+          accent: styles.modeAccent,
+          highlight: styles.modeHighlight,
+          bg: styles.modeBg,
+        }}
+      />
       <TabsApp />
     </GlobalStateContext.Provider>
   );

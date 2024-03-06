@@ -1,0 +1,58 @@
+body {
+  --appBg: var(--colorBgLightIntense);
+  --appColor: var(--colorFg);
+  --scrollbarTrackBg: var(--colorBg);
+  --scrollbarThumbBg: #a3a6ab;
+
+  --tabBg: var(--colorBgDark);
+  --tabColor: var(--colorFg);
+
+  --tabBgHover: var(--colorBgDarken);
+  --tabColorHover: var(--colorFg);
+
+  &.modeAccent {
+    --tabBgActive: var(--colorAccentBg);
+    --tabColorActive: var(--colorAccentFg);
+  }
+
+  &.modeBg {
+    --tabBgActive: var(--colorBg);
+    --tabColorActive: var(--colorFg);
+  }
+
+  &.modeHighlight {
+    --tabBgActive: var(--highlightBgColor);
+    --tabColorActive: var(--highlightTextColor);
+  }
+}
+
+.darkTheme {
+  --appBg: var(--colorBgLighter);
+  --appColor: var(--colorFg);
+  --scrollbarTrackBg: var(--colorBg);
+  --scrollbarThumbBg: #a3a6ab;
+
+  --tabBg: rgba(256, 256, 256, 0.1);
+  --tabColor: var(--colorFg);
+
+  --tabBgHover: rgba(256, 256, 256, 0.2);
+  --tabColorHover: var(--colorFg);
+
+  --tabBgActive: var(--highlightBgColor);
+  --tabColorActive: var(--highlightTextColor);
+
+  &.modeAccent {
+    --tabBgActive: var(--colorAccentBg);
+    --tabColorActive: var(--colorAccentFg);
+  }
+
+  &.modeBg {
+    --tabBgActive: var(--colorBg);
+    --tabColorActive: var(--colorFg);
+  }
+
+  &.modeHighlight {
+    --tabBgActive: var(--highlightBgColor);
+    --tabColorActive: var(--highlightTextColor);
+  }
+}

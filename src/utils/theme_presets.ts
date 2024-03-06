@@ -11,6 +11,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#202127",
     contrast: 0,
     radius: 6,
+    name: "Dark",
   },
   vivaldi: {
     alpha: 0.92,
@@ -22,6 +23,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#EDEEF2",
     contrast: 0,
     radius: 4,
+    name: "Vivaldi",
   },
   human: {
     alpha: 0.75,
@@ -33,6 +35,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#41403b",
     contrast: 0,
     radius: 0,
+    name: "Human",
   },
   beach: {
     alpha: 0.8,
@@ -44,6 +47,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#f1efea",
     contrast: 1,
     radius: 5,
+    name: "Beach",
   },
   issuna: {
     alpha: 0.75,
@@ -55,6 +59,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#1D1E21",
     contrast: 2,
     radius: 4,
+    name: "Issuna",
   },
   hotpink: {
     alpha: 0.75,
@@ -66,6 +71,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#412d38",
     contrast: 2,
     radius: 4,
+    name: "Hot Pink",
   },
   subtle: {
     alpha: 1,
@@ -77,6 +83,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#edeef2",
     contrast: 1,
     radius: 4,
+    name: "Subtle",
   },
   blueprint: {
     alpha: 0.75,
@@ -88,6 +95,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#2e3a50",
     contrast: 5,
     radius: 0,
+    name: "Blueprint",
   },
   purplerain: {
     alpha: 0.95,
@@ -99,6 +107,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "#7F5FEC",
     contrast: 3,
     radius: 4,
+    name: "Purple Rain",
   },
   private: {
     alpha: 1,
@@ -110,6 +119,7 @@ const themePresets: Record<string, ThemeSettings> = {
     colorWindowBg: "",
     contrast: 2,
     radius: 4,
+    name: "Private",
   },
 };
 

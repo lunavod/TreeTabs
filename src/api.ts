@@ -1,4 +1,5 @@
 import React from "react";
+import { ThemeSettingsWrapper } from "./utils/themes";
 
 export interface VivaldiTab extends chrome.tabs.Tab {
   vivExtData?: string;
@@ -69,6 +70,9 @@ export class TabsApi {
   public onHighlighted: EventBase<
     (highlightInfo: chrome.tabs.TabHighlightInfo) => void
   >;
+  public onThemeSettingsUpdated: EventBase<
+    (themeSettings: ThemeSettingsWrapper) => void
+  >;
 
   public onTabCaptured: EventBase<(tabId: number, dataUrl: string) => void>;
 
@@ -88,6 +92,10 @@ export class TabsApi {
     this.onMoved = new EventBase("tabs.onMoved", this.port);
     this.onHighlighted = new EventBase("tabs.onHighlighted", this.port);
     this.onTabCaptured = new EventBase("tabs.onTabCaptured", this.port);
+    this.onThemeSettingsUpdated = new EventBase(
+      "themeSettingsUpdated",
+      this.port
+    );
   }
 
   public query(info: chrome.tabs.QueryInfo): Promise<VivaldiTab[]> {
@@ -155,12 +163,33 @@ export class TabsApi {
     this.onMoved.reload(this.port);
     this.onHighlighted.reload(this.port);
     this.onTabCaptured.reload(this.port);
+    this.onThemeSettingsUpdated.reload(this.port);
   }
 
   public async getVisitedTabIds(): Promise<number[]> {
     return chrome.runtime.sendMessage(this.extId, {
       type: "custom",
       method: "getVisitedTabIds",
+    });
+  }
+
+  public async getThemeSettings(): Promise<ThemeSettingsWrapper> {
+    return chrome.runtime.sendMessage(this.extId, {
+      type: "custom",
+      method: "getThemeSettings",
+    });
+  }
+
+  public async setThemeSettings(settings: ThemeSettingsWrapper) {
+    console.log("setThemeSettings", {
+      type: "custom",
+      method: "setThemeSettings",
+      themeSettings: settings,
+    });
+    return chrome.runtime.sendMessage(this.extId, {
+      type: "custom",
+      method: "setThemeSettings",
+      themeSettings: settings,
     });
   }
 }

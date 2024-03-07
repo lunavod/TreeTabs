@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "vite": "vite",
+    "dev": "vite -c vite.config.dev.ts --port 80 --host 0.0.0.0",
+    "build": "tsc && tsx build.ts",
+    "build:watch": "nodemon --watch src --ext ts,tsx,css --exec 'tsx build.ts'",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -34,6 +36,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "fast-glob": "^3.3.2",
+    "nodemon": "^3.1.0",
     "postcss": "8.4.13",
     "prettier": "^3.1.1",
     "typescript": "^5.2.2",

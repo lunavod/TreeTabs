@@ -6,10 +6,5 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "vite.config.build.ts",
-    "vite.config.build2.ts",
-    "vite.config.dev.ts",
-    "vite.config.shared.ts"
-  ]
+  "include": ["build.ts", "vite.config.dev.ts", "vite.config.shared.ts"]
 }

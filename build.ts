@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 import { build } from "vite";
 import { fileURLToPath } from "url";
 import sharedConfig from "./vite.config.shared";
@@ -14,10 +13,6 @@ const inputFiles = [
     inputFilePath: "src/background.ts",
     emptyOutDir: true,
     cssName: "background.css",
-    // staticTargets: [
-    //   { src: resolve(__dirname, "src/assets/fonts/*"), dest: "fonts" },
-    //   { src: resolve(__dirname, "src/assets/icons/*"), dest: "icons" },
-    // ],
   },
   {
     outputFileName: "main.es",
@@ -68,5 +63,4 @@ async function buildPackages() {
   }
 }
 
-// export default finaBuild;
 export default buildPackages();

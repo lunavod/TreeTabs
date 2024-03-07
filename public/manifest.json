@@ -34,7 +34,8 @@
         "http://localhost/index.html"
       ],
       "css": [
-        "style.css"
+        "index.css",
+        "main-styles.css"
       ],
       "js": [
         "main.es.js"

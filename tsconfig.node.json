@@ -8,6 +8,7 @@
   },
   "include": [
     "vite.config.build.ts",
+    "vite.config.build2.ts",
     "vite.config.dev.ts",
     "vite.config.shared.ts"
   ]

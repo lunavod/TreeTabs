@@ -29,6 +29,11 @@ export default defineConfig({
       name: "tree_tabs_front",
       fileName: (format, entry) => `${entry}.${format}.js`,
     },
+    rollupOptions: {
+      output: {
+        manualChunks: {},
+      },
+    },
   },
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),

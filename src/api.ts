@@ -1,5 +1,6 @@
 import React from "react";
 import { ThemeSettingsWrapper } from "./utils/themes";
+import { FeatureToggles } from "./background_types";
 
 export interface VivaldiTab extends chrome.tabs.Tab {
   vivExtData?: string;
@@ -75,6 +76,9 @@ export class TabsApi {
   >;
 
   public onTabCaptured: EventBase<(tabId: number, dataUrl: string) => void>;
+  public onFeatureTogglesUpdated: EventBase<
+    (tabId: number, dataUrl: string) => void
+  >;
 
   constructor(public extId: string) {
     this.port = chrome.runtime.connect(extId);
@@ -94,6 +98,10 @@ export class TabsApi {
     this.onTabCaptured = new EventBase("tabs.onTabCaptured", this.port);
     this.onThemeSettingsUpdated = new EventBase(
       "themeSettingsUpdated",
+      this.port
+    );
+    this.onFeatureTogglesUpdated = new EventBase(
+      "featureTogglesUpdated",
       this.port
     );
   }
@@ -164,6 +172,7 @@ export class TabsApi {
     this.onHighlighted.reload(this.port);
     this.onTabCaptured.reload(this.port);
     this.onThemeSettingsUpdated.reload(this.port);
+    this.onFeatureTogglesUpdated.reload(this.port);
   }
 
   public async getVisitedTabIds(): Promise<number[]> {
@@ -181,15 +190,25 @@ export class TabsApi {
   }
 
   public async setThemeSettings(settings: ThemeSettingsWrapper) {
-    console.log("setThemeSettings", {
-      type: "custom",
-      method: "setThemeSettings",
-      themeSettings: settings,
-    });
     return chrome.runtime.sendMessage(this.extId, {
       type: "custom",
       method: "setThemeSettings",
       themeSettings: settings,
+    });
+  }
+
+  public async getFeatureToggles(): Promise<FeatureToggles> {
+    return chrome.runtime.sendMessage(this.extId, {
+      type: "custom",
+      method: "getFeatureToggles",
+    });
+  }
+
+  public async setFeatureToggles(toggles: FeatureToggles) {
+    return chrome.runtime.sendMessage(this.extId, {
+      type: "custom",
+      method: "setFeatureToggles",
+      featureToggles: toggles,
     });
   }
 }

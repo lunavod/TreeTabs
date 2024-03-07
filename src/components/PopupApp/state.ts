@@ -1,13 +1,15 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { TabsApi } from "../../api";
 import { ThemeSettingsWrapper, DefaultThemeSettings } from "../../utils/themes";
-import { run } from "node:test";
+import { FeatureToggles } from "../../background_types";
 
 class PopupAppState {
   api: TabsApi;
 
   settings: ThemeSettingsWrapper = DefaultThemeSettings;
+  featureToggles: FeatureToggles = { previews: true };
   incognito = false;
+  activeTab: "themes" | "features" = "themes";
 
   constructor(api: TabsApi) {
     makeAutoObservable(this);
@@ -24,9 +26,18 @@ class PopupAppState {
       .then((incognito) => runInAction(() => (this.incognito = incognito)));
   }
 
+  setActiveTab(tab: "themes" | "features") {
+    this.activeTab = tab;
+  }
+
   setSettings(settings: ThemeSettingsWrapper) {
     this.settings = settings;
     this.api.setThemeSettings(settings);
+  }
+
+  setFeatureToggles(toggles: FeatureToggles) {
+    this.featureToggles = toggles;
+    this.api.setFeatureToggles(toggles);
   }
 }
 

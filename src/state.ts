@@ -2,6 +2,7 @@ import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { TabsApi, VivaldiTab } from "./api";
 import { createContext, useContext } from "react";
 import { DefaultThemeSettings, ThemeSettingsWrapper } from "./utils/themes";
+import { FeatureToggles } from "./background_types";
 
 class TabsAppState {
   api: TabsApi;
@@ -27,6 +28,7 @@ class TabsAppState {
   private _bigTabsUpdateTimeout: NodeJS.Timeout | null = null;
 
   themeSettings: ThemeSettingsWrapper = DefaultThemeSettings;
+  featureToggles: FeatureToggles = { previews: true };
 
   constructor(api: TabsApi) {
     makeAutoObservable(this);
@@ -35,6 +37,12 @@ class TabsAppState {
       runInAction(() => {
         console.log("Updated settings", settings);
         this.themeSettings = settings;
+      })
+    );
+    this.api.getFeatureToggles().then((toggles) =>
+      runInAction(() => {
+        console.log("Updated toggles", toggles);
+        this.featureToggles = toggles;
       })
     );
   }

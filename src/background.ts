@@ -1,12 +1,71 @@
-import {
-  DefaultThemeSettings,
-  ThemeModeSettings,
-  ThemeSettings,
-  ThemeSettingsWrapper,
-} from "./utils/themes";
+export type FeatureToggles = {
+  previews: boolean;
+};
+
+export interface ThemeSettings {
+  alpha: number;
+  blur: number;
+  colorAccentBg: string;
+  colorBg: string;
+  colorFg: string;
+  colorHighlightBg: string;
+  colorWindowBg: string;
+  contrast: number;
+  radius: number;
+  name: string;
+}
+
+export type ThemeModeSettings = {
+  mode: "custom" | "preset";
+  customThemeData: ThemeSettings | null;
+  preset: string;
+  accentMode: "accent" | "highlight" | "bg";
+};
+
+export type ThemeSettingsWrapper = {
+  regular: ThemeModeSettings;
+  incognito: ThemeModeSettings;
+};
+
+export const DefaultThemeSettings: ThemeSettingsWrapper = {
+  regular: {
+    mode: "preset",
+    preset: "dark",
+    customThemeData: null,
+    accentMode: "accent",
+  },
+  incognito: {
+    mode: "preset",
+    preset: "private",
+    customThemeData: null,
+    accentMode: "accent",
+  },
+};
 
 const subscriptions: Record<string, Set<chrome.runtime.Port>> = {};
 const ports: chrome.runtime.Port[] = [];
+
+let currentFeatureToggles: FeatureToggles = { previews: true };
+
+const getFeatureToggles = async (): Promise<FeatureToggles> => {
+  const result = await chrome.storage.sync.get("featureToggles");
+  if (result.featureToggles) {
+    return result.featureToggles;
+  } else {
+    return { previews: true };
+  }
+};
+
+getFeatureToggles().then((featureToggles) => {
+  currentFeatureToggles = featureToggles;
+});
+
+const setFeatureToggles = async (featureToggles: FeatureToggles) => {
+  await chrome.storage.sync.set({ featureToggles });
+  ports.forEach((port) => {
+    port.postMessage({ type: "featureTogglesUpdated", data: [featureToggles] });
+  });
+};
 
 const getThemeSettings = async (): Promise<ThemeSettingsWrapper> => {
   const result = await chrome.storage.sync.get("themeSettings");
@@ -51,6 +110,17 @@ const onMessage = (request, sender, sendResponse) => {
     }
     if (request.method == "setThemeSettings") {
       setThemeSettings(request.themeSettings).then(() => {
+        sendResponse("ok");
+      });
+    }
+    if (request.method == "getFeatureToggles") {
+      getFeatureToggles().then((featureToggles) => {
+        console.log("Got feature toggles", featureToggles);
+        sendResponse(featureToggles);
+      });
+    }
+    if (request.method == "setFeatureToggles") {
+      setFeatureToggles(request.featureToggles).then(() => {
         sendResponse("ok");
       });
     }
@@ -173,16 +243,18 @@ chrome.tabs.query({}, (tabs) => {
 });
 
 function captureTab(tab: chrome.tabs.Tab) {
-  // chrome.tabs.captureVisibleTab(tab.windowId).then((dataUrl) => {
-  //   console.log("Got picture", dataUrl);
-  //   ports.forEach((port) => {
-  //     console.log("Sending picture");
-  //     port.postMessage({
-  //       type: "tabs.onTabCaptured",
-  //       data: [tab.id, dataUrl],
-  //     });
-  //   });
-  // });
+  if (!currentFeatureToggles.previews) return;
+
+  chrome.tabs.captureVisibleTab(tab.windowId).then((dataUrl) => {
+    console.log("Got picture", dataUrl);
+    ports.forEach((port) => {
+      console.log("Sending picture");
+      port.postMessage({
+        type: "tabs.onTabCaptured",
+        data: [tab.id, dataUrl],
+      });
+    });
+  });
 }
 
 const eventTypes = [

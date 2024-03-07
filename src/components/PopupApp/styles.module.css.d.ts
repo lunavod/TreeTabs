@@ -22,5 +22,6 @@ declare const classNames: {
   readonly tab: "tab";
   readonly selected: "selected";
   readonly content: "content";
+  readonly subContent: "subContent";
 };
 export = classNames;

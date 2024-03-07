@@ -46,6 +46,8 @@
     margin: 0 6px;
     border-radius: var(--radius);
     height: 28px;
+    cursor: pointer;
+    user-select: none;
 
     &.selected {
       background-color: var(--highlightBgColor);
@@ -195,6 +197,62 @@
   input[type="color"]:active:not(:disabled) {
     background-image: linear-gradient(var(--colorBgDark), var(--colorBgDark));
   }
+
+  input[type="checkbox"]:checked {
+    background-color: var(--highlightBgColor);
+  }
+  input[type="checkbox"]:checked {
+    border-color: var(--highlightBgColor);
+    background-image: none;
+    box-shadow: none;
+  }
+  .theme-dark input[type="checkbox"] {
+    background-image: linear-gradient(
+      180deg,
+      transparent -100%,
+      var(--colorFgFadedMost) 200%
+    );
+  }
+  input[type="checkbox"] {
+    border-radius: var(--radiusRounded);
+  }
+
+  input[type="checkbox"]:before {
+    transform: rotate(-45deg) translateY(45%) translateX(-30%) scaleX(0.2)
+      scaleY(0);
+  }
+
+  input[type="checkbox"]:checked:before {
+    transform: rotate(-45deg) translateY(45%) translateX(-30%) scaleX(0.2)
+      scaleY(0.4);
+    transition-duration: 33.33333333ms;
+  }
+
+  input[type="checkbox"]:after {
+    transform: rotate(225deg) translateY(-25%) translateX(-85%) scaleX(0.2)
+      scaleY(0);
+    transition-delay: 0ms;
+  }
+
+  input[type="checkbox"]:checked:after {
+    transform: rotate(225deg) translateY(-25%) translateX(-85%) scaleX(0.2)
+      scaleY(0.7);
+    transition-duration: 100ms;
+    transition-delay: 33.33333333ms;
+  }
+
+  input[type="checkbox"]:before,
+  input[type="checkbox"]:after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform-origin: 0 0;
+    transition: transform 0ms linear 0ms;
+    background-color: var(--colorBg);
+  }
 }
 
 .content {
@@ -251,5 +309,16 @@
       font-weight: 400;
       font-size: 13px;
     }
+  }
+
+  p {
+    margin: 0.5em 0;
+  }
+
+  .subContent {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 6px 0px 6px 24px;
   }
 }

@@ -88,7 +88,7 @@ const ThemeSettingsUI = observer(
             <div styleName="selectWrapper">
               <select onChange={onSelectChange} value={themeSettings.preset}>
                 {Object.keys(themePresets).map((theme) => (
-                  <option value={theme}>{toTitleCase(theme)}</option>
+                  <option value={theme}>{themePresets[theme].name}</option>
                 ))}
               </select>
             </div>

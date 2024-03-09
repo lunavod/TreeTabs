@@ -9,7 +9,7 @@ class PopupAppState {
   settings: ThemeSettingsWrapper = DefaultThemeSettings;
   featureToggles: FeatureToggles = { previews: true };
   incognito = false;
-  activeTab: "themes" | "features" = "themes";
+  activeTab: "themes" | "features" | "help" = "themes";
 
   constructor(api: TabsApi) {
     makeAutoObservable(this);
@@ -26,7 +26,7 @@ class PopupAppState {
       .then((incognito) => runInAction(() => (this.incognito = incognito)));
   }
 
-  setActiveTab(tab: "themes" | "features") {
+  setActiveTab(tab: PopupAppState["activeTab"]) {
     this.activeTab = tab;
   }
 

@@ -264,6 +264,28 @@
   padding-bottom: 24px;
   box-sizing: border-box;
 
+  font-size: 1.1em;
+
+  ol {
+    padding-inline-start: 3ch;
+
+    li {
+      margin-bottom: 12px;
+    }
+  }
+
+  .small {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-top: 6px;
+  }
+
+  code {
+    display: inline-block;
+    padding: 8px;
+    background: var(--colorFgAlpha);
+  }
+
   &::-webkit-scrollbar {
     width: 6px;
   }

@@ -59,13 +59,13 @@ jobs:
         uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
         with:
           extensionDir: "dist"
-          zipFilePath: "build/extension.zip"
+          zipFilePath: "build/treetabs-${{ github.event.inputs.newVersion }}.zip"
 
       - name: Generate extension crx
         uses: cardinalby/webext-buildtools-chrome-crx-action@v2
         with:
-          zipFilePath: "build/extension.zip"
-          crxFilePath: "build/extension.crx"
+          zipFilePath: "build/treetabs-${{ github.event.inputs.newVersion }}.zip"
+          crxFilePath: "build/treetabs-${{ github.event.inputs.newVersion }}.crx"
           privateKey: ${{ secrets.CHROME_CRX_PRIVATE_KEY }}
 
       - name: Release

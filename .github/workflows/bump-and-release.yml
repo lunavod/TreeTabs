@@ -36,6 +36,11 @@ jobs:
         run: |
           yarn build
 
+      - name: Gen changelog
+        run: |
+          yarn conventional-changelog -i CHANGELOG.md -s
+          git add CHANGELOG.md
+
       - name: Bump version
         run: |
           yarn tsx bump.ts --version ${{ github.event.inputs.newVersion }}
@@ -49,3 +54,10 @@ jobs:
           git commit -am "bump: ${{ github.event.inputs.newVersion }}"
           git tag -a ${{ github.event.inputs.newVersion }} -m "Release ${{ github.event.inputs.newVersion }}"
           git push --follow-tags
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: CHANGELOG.md
+          files:
+            - dist/*

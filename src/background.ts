@@ -324,3 +324,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   console.log("Remove", `visited#${tabId}`);
   chrome.storage.session.remove(`visited#${tabId}`);
 });
+
+// Set interval to keep the extension alive
+setInterval(() => {
+  chrome.tabs.query({ active: true, currentWindow: true });
+}, 15000);

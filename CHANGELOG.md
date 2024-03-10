@@ -1,3 +1,9 @@
+## <small>0.0.3 (2024-03-10)</small>
+
+* fix: ci file ([aed4928](https://github.com/lunavod/TreeTabs/commit/aed4928))
+
+
+
 ## <small>0.0.2 (2024-03-10)</small>
 
 * feat: add pwa capabilities ([0046240](https://github.com/lunavod/TreeTabs/commit/0046240))

@@ -1,3 +1,9 @@
+## <small>0.0.4 (2024-03-10)</small>
+
+* fix: release tag_name in ci ([280b022](https://github.com/lunavod/TreeTabs/commit/280b022))
+
+
+
 ## <small>0.0.3 (2024-03-10)</small>
 
 * fix: ci file ([aed4928](https://github.com/lunavod/TreeTabs/commit/aed4928))

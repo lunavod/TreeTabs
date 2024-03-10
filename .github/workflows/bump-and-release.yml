@@ -1,0 +1,50 @@
+name: Bump And Release
+on:
+  workflow_dispatch:
+    inputs:
+      newVersion:
+        description: "New version"
+        required: true
+        type: string
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install yarn
+        run: |-
+          curl -fsSL --create-dirs -o $HOME/bin/yarn \
+          https://github.com/yarnpkg/yarn/releases/download/v1.22.19/yarn-1.22.19.js
+          chmod +x $HOME/bin/yarn
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "21"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build
+        run: |
+          yarn build
+
+      - name: Bump version
+        run: |
+          yarn tsx bump.ts --version ${{ github.event.inputs.newVersion }}
+          cat package.json
+          cat public/manifest.json
+
+      - name: Commit bump
+        run: |
+          git config --global user.name 'BumpAction'
+          git config --global user.email 'lunavod@users.noreply.github.com'
+          git commit -am "bump: ${{ github.event.inputs.newVersion }}"
+          git push

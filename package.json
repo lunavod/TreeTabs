@@ -1,13 +1,13 @@
 {
-  "name": "treetabsweb",
+  "name": "treetabs",
+  "version": "0.0.1",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "vite": "vite",
     "dev": "vite -c vite.config.dev.ts --port 80 --host 0.0.0.0",
     "build": "tsc && tsx build.ts",
-    "build:watch": "nodemon --watch src,public --ext ts,tsx,css --exec 'tsx build.ts'",
+    "build:watch": "nodemon --watch src public --ext ts,tsx,css --exec 'tsx build.ts'",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -32,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "arg": "^5.0.2",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
@@ -39,6 +40,7 @@
     "nodemon": "^3.1.0",
     "postcss": "8.4.13",
     "prettier": "^3.1.1",
+    "tsx": "^4.7.1",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
     "vite-plugin-pwa": "^0.19.2",

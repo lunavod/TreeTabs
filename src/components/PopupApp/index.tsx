@@ -1,16 +1,14 @@
 import { observer } from "mobx-react-lite";
 import ThemeInjector from "../ThemeInjector";
 import styles from "./styles.module.css";
-import themePresets from "../../utils/theme_presets";
 import { useState } from "react";
 import { TabsApi } from "../../api";
 import PopupAppState from "./state";
-import { toJS } from "mobx";
 import ThemeSettingsUI from "../ThemeSettingsUI";
 import clsx from "clsx";
 
 const PopupApp = observer(() => {
-  const [api] = useState(() => new TabsApi(chrome.runtime.id));
+  const [api] = useState(() => new TabsApi());
   const [state] = useState(() => new PopupAppState(api));
 
   return (
@@ -55,7 +53,8 @@ const PopupApp = observer(() => {
             <h2>Installation</h2>
             <ol>
               <li>
-                Copy url: <code>http://tree-tabs.vercel.app</code>
+                Copy url:{" "}
+                <code>https://tree-tabs-front.vercel.app/container</code>
                 <div styleName="small">
                   That website is just a container for the extension - we can't
                   use bundled html file, because it won't open in incognito
@@ -73,6 +72,14 @@ const PopupApp = observer(() => {
               <li>
                 (Optional) To hide panel title, right-click near the home button
                 on the panel, select "Navigation Controls" -{">"} "Hide"
+              </li>
+              <li>
+                (Optional) To allow extension to work in incognito mode, find
+                the extension in the extensions list, click on "Details", and
+                enable "Allow in incognito".
+                <br />
+                After that, right-click on the extension panel, and press
+                "reload". Or restart the browser.
               </li>
             </ol>
             <h2>Themes</h2>

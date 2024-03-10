@@ -25,8 +25,10 @@ export class EventBase<Cb extends CallableFunction> {
   }
 
   subscribe() {
+    // console.log("Subscribing to", this.topic);
     this.port.onMessage.addListener((msg) => {
       if (msg.type === this.topic) {
+        // console.log("Received", msg.type, msg.data);
         this.listeners.forEach((l) => l(...msg.data));
       }
     });
@@ -34,9 +36,7 @@ export class EventBase<Cb extends CallableFunction> {
 
   reload(port: chrome.runtime.Port) {
     this.port = port;
-    if (this.listeners.length > 0) {
-      this.subscribe();
-    }
+    this.subscribe();
   }
 }
 
@@ -80,10 +80,35 @@ export class TabsApi {
     (tabId: number, dataUrl: string) => void
   >;
 
-  constructor(public extId: string) {
-    this.port = chrome.runtime.connect(extId);
+  constructor() {
+    this.port = chrome.runtime.connect();
+    // console.log("INITIAL CONNECTED", this.port);
+
+    this.port.onMessage.addListener((msg) => {
+      // console.warn("RECEIVED MESSAGE", msg);
+    });
+
     this.port.onDisconnect.addListener(() => {
-      this.changeExtensionId(extId);
+      // console.log("DISCONNECTED");
+      this.port = chrome.runtime.connect();
+      this.port.onMessage.addListener((msg) => {
+        // console.warn("RECEIVED MESSAGE", msg);
+      });
+
+      // console.log("RECONNECTED", this.port);
+
+      this.onUpdated.reload(this.port);
+      this.onActivated.reload(this.port);
+      this.onCreated.reload(this.port);
+      this.onRemoved.reload(this.port);
+      this.onReplaced.reload(this.port);
+      this.onAttached.reload(this.port);
+      this.onDetached.reload(this.port);
+      this.onMoved.reload(this.port);
+      this.onHighlighted.reload(this.port);
+      this.onTabCaptured.reload(this.port);
+      this.onThemeSettingsUpdated.reload(this.port);
+      this.onFeatureTogglesUpdated.reload(this.port);
     });
 
     this.onUpdated = new EventBase("tabs.onUpdated", this.port);
@@ -109,7 +134,7 @@ export class TabsApi {
   public query(info: chrome.tabs.QueryInfo): Promise<VivaldiTab[]> {
     return new Promise((resolve) => {
       chrome.runtime
-        .sendMessage(this.extId, {
+        .sendMessage({
           method: "query",
           input: [info],
           type: "chrome.tabs",
@@ -119,14 +144,14 @@ export class TabsApi {
   }
 
   public getThisTab(): Promise<VivaldiTab> {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       method: "getSenderTab",
       type: "custom",
     });
   }
 
   public update(tabId: number, props: chrome.tabs.UpdateProperties) {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       method: "update",
       input: [tabId, props],
       type: "chrome.tabs",
@@ -134,7 +159,7 @@ export class TabsApi {
   }
 
   public remove(tabId: number) {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       method: "remove",
       input: [tabId],
       type: "chrome.tabs",
@@ -142,7 +167,7 @@ export class TabsApi {
   }
 
   public create(props: chrome.tabs.CreateProperties) {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       method: "create",
       input: [props],
       type: "chrome.tabs",
@@ -154,43 +179,22 @@ export class TabsApi {
     return tabs.some((t) => t.incognito);
   }
 
-  public changeExtensionId(extId: string) {
-    this.extId = extId;
-    this.port = chrome.runtime.connect(extId);
-    this.port.onDisconnect.addListener(() => {
-      this.changeExtensionId(extId);
-    });
-
-    this.onUpdated.reload(this.port);
-    this.onActivated.reload(this.port);
-    this.onCreated.reload(this.port);
-    this.onRemoved.reload(this.port);
-    this.onReplaced.reload(this.port);
-    this.onAttached.reload(this.port);
-    this.onDetached.reload(this.port);
-    this.onMoved.reload(this.port);
-    this.onHighlighted.reload(this.port);
-    this.onTabCaptured.reload(this.port);
-    this.onThemeSettingsUpdated.reload(this.port);
-    this.onFeatureTogglesUpdated.reload(this.port);
-  }
-
   public async getVisitedTabIds(): Promise<number[]> {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       type: "custom",
       method: "getVisitedTabIds",
     });
   }
 
   public async getThemeSettings(): Promise<ThemeSettingsWrapper> {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       type: "custom",
       method: "getThemeSettings",
     });
   }
 
   public async setThemeSettings(settings: ThemeSettingsWrapper) {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       type: "custom",
       method: "setThemeSettings",
       themeSettings: settings,
@@ -198,14 +202,14 @@ export class TabsApi {
   }
 
   public async getFeatureToggles(): Promise<FeatureToggles> {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       type: "custom",
       method: "getFeatureToggles",
     });
   }
 
   public async setFeatureToggles(toggles: FeatureToggles) {
-    return chrome.runtime.sendMessage(this.extId, {
+    return chrome.runtime.sendMessage({
       type: "custom",
       method: "setFeatureToggles",
       featureToggles: toggles,

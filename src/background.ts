@@ -42,17 +42,19 @@ export const DefaultThemeSettings: ThemeSettingsWrapper = {
   },
 };
 
+export const DefaultFeatureToggles: FeatureToggles = { previews: false };
+
 const subscriptions: Record<string, Set<chrome.runtime.Port>> = {};
 const ports: chrome.runtime.Port[] = [];
 
-let currentFeatureToggles: FeatureToggles = { previews: true };
+let currentFeatureToggles: FeatureToggles = DefaultFeatureToggles;
 
 const getFeatureToggles = async (): Promise<FeatureToggles> => {
   const result = await chrome.storage.sync.get("featureToggles");
   if (result.featureToggles) {
     return result.featureToggles;
   } else {
-    return { previews: true };
+    return DefaultFeatureToggles;
   }
 };
 
@@ -86,6 +88,7 @@ const getThemeSettings = async (): Promise<ThemeSettingsWrapper> => {
 const setThemeSettings = async (themeSettings: ThemeSettingsWrapper) => {
   await chrome.storage.sync.set({ themeSettings });
   ports.forEach((port) => {
+    console.warn("Sending themeSettingsUpdated", themeSettings, port);
     port.postMessage({ type: "themeSettingsUpdated", data: [themeSettings] });
   });
 };
@@ -192,6 +195,7 @@ const allowedDomains = [
 ];
 
 function insertExtensionId(tab: chrome.tabs.Tab) {
+  return;
   if (!tab.id) return;
   if (
     !allowedDomains.some((domain) => tab.url?.startsWith(domain)) &&

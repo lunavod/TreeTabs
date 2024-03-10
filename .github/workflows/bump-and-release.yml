@@ -55,10 +55,23 @@ jobs:
           git tag -a ${{ github.event.inputs.newVersion }} -m "Release ${{ github.event.inputs.newVersion }}"
           git push --follow-tags
 
+      - name: Generate extension zip
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: "dist"
+          zipFilePath: "build/extension.zip"
+
+      - name: Generate extension crx
+        uses: cardinalby/webext-buildtools-chrome-crx-action@v2
+        with:
+          zipFilePath: "build/extension.zip"
+          crxFilePath: "build/extension.crx"
+          privateKey: ${{ secrets.CHROME_CRX_PRIVATE_KEY }}
+
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.newVersion }}
           body_path: CHANGELOG.md
           files: |
-            dist/*
+            build/*

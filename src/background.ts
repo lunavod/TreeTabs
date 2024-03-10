@@ -277,6 +277,7 @@ eventTypes.forEach((eventType) => {
   chrome.tabs[eventType].addListener((...args) => {
     console.warn(`tabs.${eventType}`, args);
     ports.forEach((port) => {
+      console.log("Sending", `tabs.${eventType} to `, port);
       port.postMessage({ type: `tabs.${eventType}`, data: args });
     });
   });

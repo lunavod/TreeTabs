@@ -47,4 +47,5 @@ jobs:
           git config --global user.name 'BumpAction'
           git config --global user.email 'lunavod@users.noreply.github.com'
           git commit -am "bump: ${{ github.event.inputs.newVersion }}"
-          git push
+          git tag -a ${{ github.event.inputs.newVersion }} -m "Release ${{ github.event.inputs.newVersion }}"
+          git push --follow-tags

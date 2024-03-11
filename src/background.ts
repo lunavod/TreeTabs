@@ -32,13 +32,13 @@ export const DefaultThemeSettings: ThemeSettingsWrapper = {
     mode: "preset",
     preset: "dark",
     customThemeData: null,
-    accentMode: "accent",
+    accentMode: "highlight",
   },
   incognito: {
     mode: "preset",
     preset: "private",
     customThemeData: null,
-    accentMode: "accent",
+    accentMode: "highlight",
   },
 };
 

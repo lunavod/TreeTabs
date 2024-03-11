@@ -32,10 +32,6 @@ jobs:
         run: |
           yarn install
 
-      - name: Build
-        run: |
-          yarn build
-
       - name: Gen changelog
         run: |
           yarn conventional-changelog -i CHANGELOG.md -s
@@ -46,6 +42,10 @@ jobs:
           yarn tsx bump.ts --version ${{ github.event.inputs.newVersion }}
           cat package.json
           cat public/manifest.json
+
+      - name: Build
+        run: |
+          yarn build
 
       - name: Commit bump
         run: |

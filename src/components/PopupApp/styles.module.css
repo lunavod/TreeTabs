@@ -4,15 +4,6 @@
   </svg>');
 }
 
-.themeDark input[type="radio"],
-.themeDark input[type="checkbox"] {
-  background-image: linear-gradient(
-    180deg,
-    transparent -100%,
-    var(--colorFgFadedMost) 200%
-  );
-}
-
 .root {
   background: var(--colorBgLightIntense);
   color: var(--colorFg);
@@ -343,4 +334,13 @@
     gap: 12px;
     padding: 6px 0px 6px 24px;
   }
+}
+
+.themeDark input[type="radio"],
+.themeDark input[type="checkbox"] {
+  background-image: linear-gradient(
+    180deg,
+    transparent -100%,
+    var(--colorFgFadedMost) 200%
+  );
 }

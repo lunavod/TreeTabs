@@ -47,11 +47,19 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.8em;
+    /* line-height: 1em; */
+    margin-top: 3px;
   }
 
   img {
-    height: 1.2em;
+    height: 16px;
     aspect-ratio: 1/1;
+  }
+
+  svg {
+    height: 16px;
+    aspect-ratio: 1/1;
+    fill: var(--colorFg);
   }
 
   .noFavicon {
@@ -114,18 +122,22 @@
     }
   }
 
-  .add {
-    height: 1.2em;
-    aspect-ratio: 1/1;
-    border-radius: 2px;
-    background: var(--colorFg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &.addTab {
+    opacity: 0.9;
+
+    &:hover {
+      opacity: 1;
+    }
 
     svg {
-      fill: var(--colorBg);
-      height: 12px;
+      height: 1.2em;
+      aspect-ratio: 1/1;
+      fill: var(--colorFg);
+    }
+
+    span {
+      margin-top: 0px;
+      line-height: 1em;
     }
   }
 

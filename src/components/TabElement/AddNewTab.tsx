@@ -7,10 +7,8 @@ import { observer } from "mobx-react-lite";
 const AddNewTab = observer(
   ({ onClick }: { onClick: React.MouseEventHandler<HTMLDivElement> }) => {
     return (
-      <div styleName="tab transparent" onClick={onClick}>
-        <span styleName="add">
-          <PlusIcon />
-        </span>
+      <div styleName="tab transparent addTab" onClick={onClick}>
+        <PlusIcon />
         <span>Open a New Tab</span>
       </div>
     );

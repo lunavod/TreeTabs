@@ -4,11 +4,17 @@ import { VivaldiTab } from "../../api";
 import styles from "./styles.module.css";
 import clsx from "clsx";
 import { useRef, useState, useEffect } from "react";
-import FileQuestionIcon from "../../assets/icons/solid/file-circle-question.svg";
 import XmarkIcon from "../../assets/icons/solid/xmark.svg";
 import VolumeIndicator from "../VolumeIndicator";
 import { useGlobalState } from "../../state";
 import { toJS } from "mobx";
+import DefaultFavicon from "../../assets/icons/vivaldi/default_favicon_64.png";
+import ExtensionsIcon from "../../assets/icons/vivaldi/extensions.png";
+import StartPageIcon from "../../assets/icons/vivaldi/startpage.svg";
+import HistoryIcon from "../../assets/icons/vivaldi/history.svg";
+import CalendarIcon from "../../assets/icons/vivaldi/calendar.svg";
+import NotesIcon from "../../assets/icons/vivaldi/notes.svg";
+import BookmarksIcon from "../../assets/icons/vivaldi/bookmarks.svg";
 
 const TabElement = observer(
   ({
@@ -33,7 +39,6 @@ const TabElement = observer(
         el = el.parentElement;
       }
 
-      console.log("ACTIVATING");
       globalState.api.update(tab.id as number, { active: true });
     };
 
@@ -52,20 +57,46 @@ const TabElement = observer(
       });
     };
 
+    let Favicon = null;
     let title = tab.title as string;
+
     if (tab.url && title.endsWith(` - ${tab.url}`))
       title = title.slice(0, -` - ${tab.url}`.length);
+
+    if (tab.favIconUrl) {
+      Favicon = <img src={tab.favIconUrl} />;
+    }
 
     if (tab.url) {
       const url = new URL(tab.url as string);
       if (url.host === "vivaldi-webui") {
-        title = "Vivaldi: New tab ";
+        title = "Start Page";
+        Favicon = <StartPageIcon />;
         if (url.pathname === "/startpage") {
-          if (url.searchParams.get("section") === "history")
-            title = "Vivaldi: History";
-          if (url.searchParams.get("section") === "Speed-dials")
-            title = "Vivaldi: New tab ";
+          if (url.searchParams.get("section") === "history") {
+            title = "History";
+            Favicon = <HistoryIcon />;
+          }
+          if (url.searchParams.get("section") === "calendar") {
+            title = "Calendar";
+            Favicon = <CalendarIcon />;
+          }
+          if (url.searchParams.get("section") === "notes") {
+            title = "Notes";
+            Favicon = <NotesIcon />;
+          }
+          if (url.searchParams.get("section") === "bookmarks") {
+            title = "Bookmarks";
+            Favicon = <BookmarksIcon />;
+          }
         }
+      }
+      if (url.host === "extensions") {
+        Favicon = <img src={ExtensionsIcon} />;
+      }
+      if (url.host === "newtab") {
+        title = "Start Page";
+        Favicon = <StartPageIcon />;
       }
     }
 
@@ -118,10 +149,10 @@ const TabElement = observer(
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >
-          {!!tab.favIconUrl && <img src={tab.favIconUrl} />}
-          {!tab.favIconUrl && (
+          {!!Favicon && Favicon}
+          {!Favicon && (
             <div styleName="noFavicon">
-              <FileQuestionIcon />
+              <img src={DefaultFavicon} />
             </div>
           )}
           {!!tab.audible && <VolumeIndicator />}

@@ -93,6 +93,61 @@ const setThemeSettings = async (themeSettings: ThemeSettingsWrapper) => {
   });
 };
 
+class CustomApi {
+  static getSenderTab(request, sender, sendResponse) {
+    return sendResponse(sender.tab);
+  }
+
+  static getThemeSettings(request, sender, sendResponse) {
+    return getThemeSettings().then((themeSettings) => {
+      sendResponse(themeSettings);
+    });
+  }
+
+  static setThemeSettings(request, sender, sendResponse) {
+    return setThemeSettings(request.themeSettings).then(() => {
+      sendResponse("ok");
+    });
+  }
+
+  static getFeatureToggles(request, sender, sendResponse) {
+    return getFeatureToggles().then((featureToggles) => {
+      sendResponse(featureToggles);
+    });
+  }
+
+  static setFeatureToggles(request, sender, sendResponse) {
+    return setFeatureToggles(request.featureToggles).then(() => {
+      sendResponse("ok");
+    });
+  }
+
+  static getVisitedTabIds(request, sender, sendResponse) {
+    chrome.tabs.query({ currentWindow: true }).then((tabs) => {
+      chrome.storage.session
+        .get(tabs.map((tab) => `visited#${tab.id}`))
+        .then((visitedTabs: Record<string, true>) => {
+          sendResponse(
+            Object.keys(visitedTabs).map((key) => parseInt(key.split("#")[1]))
+          );
+        });
+    });
+  }
+
+  static getTabCreatedDates(request, sender, sendResponse) {
+    const tabIds: number[] = request.tabIds;
+    chrome.storage.session
+      .get(tabIds.map((tabId) => `createdDate#${tabId}`))
+      .then((createdDates: Record<string, number>) => {
+        const result: Record<number, number> = {};
+        tabIds.forEach((tabId) => {
+          result[tabId] = createdDates[`createdDate#${tabId}`] || Date.now();
+        });
+        sendResponse(result);
+      });
+  }
+}
+
 const onMessage = (request, sender, sendResponse) => {
   if (request.type == "chrome.tabs") {
     console.log("chrome.tabs", request.method, request.input);
@@ -101,49 +156,11 @@ const onMessage = (request, sender, sendResponse) => {
       sendResponse(data);
     });
   } else if (request.type == "custom") {
-    console.log("custom", request.method, request);
-    if (request.method == "getSenderTab") {
-      sendResponse(sender.tab);
+    if (!CustomApi[request.method]) {
+      console.error("Method not found", request.method);
+      return sendResponse("Method not found");
     }
-    if (request.method == "getThemeSettings") {
-      getThemeSettings().then((themeSettings) => {
-        console.log("Got theme settings", themeSettings);
-        sendResponse(themeSettings);
-      });
-    }
-    if (request.method == "setThemeSettings") {
-      setThemeSettings(request.themeSettings).then(() => {
-        sendResponse("ok");
-      });
-    }
-    if (request.method == "getFeatureToggles") {
-      getFeatureToggles().then((featureToggles) => {
-        console.log("Got feature toggles", featureToggles);
-        sendResponse(featureToggles);
-      });
-    }
-    if (request.method == "setFeatureToggles") {
-      setFeatureToggles(request.featureToggles).then(() => {
-        sendResponse("ok");
-      });
-    }
-    if (request.method == "getVisitedTabIds") {
-      console.log("getVisitedTabIds");
-      chrome.tabs.query({ currentWindow: true }).then((tabs) => {
-        console.log(
-          "Got tabs",
-          tabs.map((tab) => `visited#${tab.id}`)
-        );
-        chrome.storage.session
-          .get(tabs.map((tab) => `visited#${tab.id}`))
-          .then((visitedTabs: Record<string, true>) => {
-            console.log("Got visitedTabs", visitedTabs);
-            sendResponse(
-              Object.keys(visitedTabs).map((key) => parseInt(key.split("#")[1]))
-            );
-          });
-      });
-    }
+    CustomApi[request.method](request, sender, sendResponse);
   } else {
     sendResponse("Something went wrong");
   }
@@ -189,63 +206,6 @@ chrome.runtime.onMessageExternal.addListener(onMessage);
 chrome.runtime.onConnect.addListener(onConnect);
 chrome.runtime.onConnectExternal.addListener(onConnect);
 
-const allowedDomains = [
-  "http://localhost",
-  "https://tree-tabs-front.vercel.app",
-];
-
-function insertExtensionId(tab: chrome.tabs.Tab) {
-  return;
-  if (!tab.id) return;
-  if (
-    !allowedDomains.some((domain) => tab.url?.startsWith(domain)) &&
-    !tab.url?.includes("vercel.app")
-  )
-    return;
-
-  console.log("Inserting extension id: ", tab.id, tab.windowId);
-
-  try {
-    chrome.scripting
-      .executeScript({
-        target: { tabId: tab.id, allFrames: true },
-        func: (extensionId) => {
-          console.log("Extension id: ", extensionId);
-          const insert = () => {
-            const container = document.querySelector(
-              "#extension-id-container"
-            ) as HTMLElement | null;
-            if (!container) {
-              console.error("No container");
-              return;
-            }
-            if (container.dataset.extensionId == extensionId) return;
-            container.setAttribute("data-extension-id", extensionId.toString());
-          };
-          if (document.readyState === "complete") {
-            insert();
-          } else {
-            document.addEventListener("DOMContentLoaded", insert);
-          }
-        },
-        args: [chrome.runtime.id],
-      })
-      .catch((e) => {
-        console.error(e);
-        console.log("On tab", tab.id, tab.url, tab.windowId);
-      });
-  } catch (e) {
-    console.error(e);
-    console.log("On tab", tab.id, tab.url, tab.windowId);
-  }
-}
-
-chrome.tabs.query({}, (tabs) => {
-  tabs.forEach((tab) => {
-    insertExtensionId(tab);
-  });
-});
-
 function captureTab(tab: chrome.tabs.Tab) {
   if (!currentFeatureToggles.previews) return;
 
@@ -284,7 +244,6 @@ eventTypes.forEach((eventType) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  insertExtensionId(tab);
   if (tab.active && tab.id) {
     console.log("Set", `visited#${tab.id}`);
     chrome.storage.session.set({ [`visited#${tab.id}`]: true });
@@ -292,7 +251,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 chrome.tabs.onCreated.addListener((tab) => {
-  insertExtensionId(tab);
+  chrome.storage.session.set({ [`createdDate#${tab.id}`]: Date.now() });
   if (tab.active && tab.id) {
     console.log("Set", `visited#${tab.id}`);
     chrome.storage.session.set({ [`visited#${tab.id}`]: true });
@@ -310,7 +269,6 @@ chrome.tabs.onActivated.addListener((activeInfo: chrome.tabs.TabActiveInfo) => {
 
 chrome.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
   chrome.tabs.get(addedTabId, (tab) => {
-    insertExtensionId(tab);
     if (tab.active && tab.id) {
       console.log("Set", `visited#${tab.id}`);
       chrome.storage.session.set({ [`visited#${tab.id}`]: true });
@@ -329,3 +287,12 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 setInterval(() => {
   chrome.tabs.query({ active: true, currentWindow: true });
 }, 15000);
+
+chrome.runtime.onInstalled.addListener(function () {
+  chrome.tabs.create({
+    url: "https://tree-tabs-front.vercel.app/afterInstall",
+    active: true,
+  });
+
+  return false;
+});

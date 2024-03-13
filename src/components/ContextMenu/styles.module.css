@@ -1,3 +1,19 @@
+@media (prefers-color-scheme: dark) {
+  .menu {
+    --menuBackground: #292a2d;
+    --menuColor: white;
+    --menuHoverBackground: #3c4043;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .menu {
+    --menuBackground: white;
+    --menuColor: black;
+    --menuHoverBackground: #e8e8e9;
+  }
+}
+
 .menu {
   position: absolute;
   padding: 6px;
@@ -6,6 +22,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0px 12px 24px -12px rgba(0, 0, 0, 0.5);
+  background: var(--menuBackground);
+  color: var(--menuColor);
 
   & > * {
     padding: 5px 36px;
@@ -13,32 +31,22 @@
     font-size: 13px;
     cursor: pointer;
     border-radius: 4px;
-  }
-}
 
-@media (prefers-color-scheme: dark) {
-  .menu {
-    background: #292a2d;
-    & > * {
-      color: white;
-
-      &:hover {
-        background: #3c4043;
-      }
+    &:hover {
+      background: var(--menuHoverBackground);
     }
   }
-}
 
-@media (prefers-color-scheme: light) {
-  .menu {
-    background: white;
-
-    & > * {
-      color: black;
-
-      &:hover {
-        background: #e8e8e9;
-      }
+  .separator {
+    height: 1px;
+    background: var(--menuColor);
+    opacity: 0.2;
+    margin: 6px 0;
+    padding: 0;
+    width: calc(100% + 12px);
+    margin-left: -6px;
+    &:hover {
+      background: var(--menuColor);
     }
   }
 }

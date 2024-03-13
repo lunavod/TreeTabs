@@ -70,16 +70,34 @@ const PopupApp = observer(() => {
               </li>
               <li>Press "+" button on the side panel and paste the address</li>
               <li>
-                (Optional) To hide panel title, right-click near the home button
-                on the panel, select "Navigation Controls" -{">"} "Hide"
+                <span styleName="optional">(Optional)</span> To hide panel
+                title, right-click near the home button on the panel, select
+                "Navigation Controls" -{">"} "Hide"
               </li>
               <li>
-                (Optional) To allow extension to work in incognito mode, find
-                the extension in the extensions list, click on "Details", and
-                enable "Allow in incognito".
+                <span styleName="optional">(Optional)</span> To allow extension
+                to work in incognito mode, find the extension in the extensions
+                list, click on "Details", and enable "Allow in incognito".
                 <br />
                 After that, right-click on the extension panel, and press
                 "reload". Or restart the browser.
+              </li>
+              <li>
+                <span styleName="optional">(Optional)</span> Hide native browser
+                tab bar: open settings, go to "Tabs", and uncheck "Show Tab Bar"
+                option
+              </li>
+              <li>
+                <span styleName="optional">(Optional)</span> Disable ad blocking
+                for this domain - click on the shield icon in the address bar,
+                and select "No Blocking"
+                <div styleName="small">
+                  With blocking enabled, some favicons might not load, for
+                  example from reddit.com
+                  <br />
+                  This website does not contain any ads or trackers, so it's
+                  safe to disable blocking here.
+                </div>
               </li>
             </ol>
             <h2>Themes</h2>

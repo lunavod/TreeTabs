@@ -158,6 +158,14 @@ export class TabsApi {
     });
   }
 
+  public move(tabIds: number | number[], props: chrome.tabs.MoveProperties) {
+    return chrome.runtime.sendMessage({
+      method: "move",
+      input: [tabIds, props],
+      type: "chrome.tabs",
+    });
+  }
+
   public remove(tabId: number) {
     return chrome.runtime.sendMessage({
       method: "remove",
@@ -213,6 +221,16 @@ export class TabsApi {
       type: "custom",
       method: "setFeatureToggles",
       featureToggles: toggles,
+    });
+  }
+
+  public async getTabCreatedDates(
+    tabIds: number[]
+  ): Promise<Record<number, number>> {
+    return chrome.runtime.sendMessage({
+      type: "custom",
+      method: "getTabCreatedDates",
+      tabIds,
     });
   }
 }

@@ -277,6 +277,10 @@
     background: var(--colorFgAlpha);
   }
 
+  .optional {
+    opacity: 0.5;
+  }
+
   &::-webkit-scrollbar {
     width: 6px;
   }

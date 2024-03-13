@@ -135,9 +135,15 @@ class TabsAppState {
     await this.ensureInitialized();
 
     const tabs = await this.api.query({ windowId: this.windowId });
+    // const tabCreationDates = await this.api.getTabCreatedDates(
+    //   tabs.map((t) => t.id as number)
+    // );
+
+    // console.log("Creation dates", tabCreationDates);
 
     // Tabs should already be sorted by index, but just in case...
     tabs.sort((a, b) => a.index - b.index);
+    tabs.sort((a, b) => a.id - b.id);
 
     // Before calculating levels, we need to ensure that the tabParentMap is up to date.
     tabs.forEach((tab) => {
@@ -171,6 +177,26 @@ class TabsAppState {
 
     const topLevelTabs = tabs.filter((t) => !t.openerTabId);
     mapTabs(topLevelTabs, 0);
+
+    this.markBigUpdateStart();
+    for (let i = 0; i < flatTabsTree.length; i++) {
+      if (
+        flatTabsTree[i].openerTabId !== this.tabParentMap[flatTabsTree[i].id] &&
+        this.tabParentMap[flatTabsTree[i].id]
+      ) {
+        console.warn(
+          `Tab ${flatTabsTree[i].id} has wrong openerTabId ${
+            flatTabsTree[i].openerTabId
+          } !== ${this.tabParentMap[flatTabsTree[i].id]}`
+        );
+
+        await this.api.update(flatTabsTree[i].id as number, {
+          openerTabId: this.tabParentMap[flatTabsTree[i].id],
+        });
+      }
+    }
+
+    this.markBigUpdateEnd(false);
 
     runInAction(() => {
       this.__tabs = flatTabsTree;
@@ -253,7 +279,7 @@ class TabsAppState {
       : findChildrenRecursively(tab.id as number);
     const targetTabIds = targetTabs.map((t) => t.id as number);
 
-    if (targetTabs.some((t) => t.active)) {
+    if (targetTabs.some((t) => t.active) && !includeSelf) {
       if (tabIndex > 0) {
         this.api.update(this.tabs[tabIndex - 1].id as number, { active: true });
       } else {
@@ -269,6 +295,10 @@ class TabsAppState {
           await this.api.create({ active: true });
         }
       }
+    } else if (targetTabs.some((t) => t.active) && includeSelf) {
+      await this.api.update(tab.id as number, {
+        active: true,
+      });
     }
 
     await Promise.all(targetTabs.map((t) => this.api.remove(t.id as number)));

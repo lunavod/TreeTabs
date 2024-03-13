@@ -24,6 +24,10 @@ const ContextMenu = observer(() => {
     globalState.closeAllBelow(globalState.contextTab);
   };
 
+  const onReload = () => {
+    location.reload();
+  };
+
   if (!globalState.pos.left && !globalState.pos.right) return <></>;
 
   return (
@@ -33,6 +37,8 @@ const ContextMenu = observer(() => {
       <div onClick={(e) => onCloseOnlyChildren(e)}>Close children</div>
       <div onClick={() => onCloseBottom()}>Close all below</div>
       <div onClick={() => onCloseTop()}>Close all above</div>
+      <div styleName="separator" />
+      <div onClick={() => onReload()}>Reload extension</div>
     </div>
   );
 });

@@ -52,13 +52,13 @@
   }
 
   img {
+    width: 16px;
     height: 16px;
-    aspect-ratio: 1/1;
   }
 
   svg {
+    width: 16px;
     height: 16px;
-    aspect-ratio: 1/1;
     fill: var(--colorFg);
   }
 
@@ -136,8 +136,8 @@
     }
 
     span {
-      margin-top: 0px;
-      line-height: 1em;
+      margin-top: 1px;
+      line-height: unset;
     }
   }
 

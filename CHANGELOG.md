@@ -1,3 +1,9 @@
+##  (2024-03-13)
+
+* feat: restoring openerTabId ([95cf385](https://github.com/lunavod/TreeTabs/commit/95cf385))
+
+
+
 ##  (2024-03-10)
 
 * Merge branch 'main' of github.com:lunavod/TreeTabs ([0c9e9a4](https://github.com/lunavod/TreeTabs/commit/0c9e9a4))

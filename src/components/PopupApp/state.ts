@@ -22,6 +22,10 @@ class PopupAppState {
     );
 
     this.api
+      .getFeatureToggles()
+      .then((toggles) => runInAction(() => (this.featureToggles = toggles)));
+
+    this.api
       .checkIncognito()
       .then((incognito) => runInAction(() => (this.incognito = incognito)));
   }

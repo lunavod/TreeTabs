@@ -64,6 +64,7 @@ getFeatureToggles().then((featureToggles) => {
 
 const setFeatureToggles = async (featureToggles: FeatureToggles) => {
   await chrome.storage.sync.set({ featureToggles });
+  currentFeatureToggles = featureToggles;
   ports.forEach((port) => {
     port.postMessage({ type: "featureTogglesUpdated", data: [featureToggles] });
   });
@@ -210,7 +211,7 @@ function captureTab(tab: chrome.tabs.Tab) {
   if (!currentFeatureToggles.previews) return;
 
   chrome.tabs.captureVisibleTab(tab.windowId).then((dataUrl) => {
-    console.log("Got picture", dataUrl);
+    console.warn("Got picture");
     ports.forEach((port) => {
       console.log("Sending picture");
       port.postMessage({

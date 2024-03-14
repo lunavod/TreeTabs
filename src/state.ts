@@ -45,6 +45,11 @@ class TabsAppState {
         this.featureToggles = toggles;
       })
     );
+
+    this.api.onFeatureTogglesUpdated.addListener((toggles) => {
+      console.log("Updated feature toggles event", toggles);
+      runInAction(() => (this.featureToggles = toggles));
+    });
   }
 
   get tabs() {

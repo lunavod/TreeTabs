@@ -77,7 +77,7 @@ export class TabsApi {
 
   public onTabCaptured: EventBase<(tabId: number, dataUrl: string) => void>;
   public onFeatureTogglesUpdated: EventBase<
-    (tabId: number, dataUrl: string) => void
+    (featureToggles: FeatureToggles) => void
   >;
 
   constructor() {

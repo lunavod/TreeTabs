@@ -294,5 +294,13 @@ chrome.runtime.onInstalled.addListener(function () {
     active: true,
   });
 
+  chrome.tabs
+    .query({ url: "https://tree-tabs-front.vercel.app/container" })
+    .then((tabs) => {
+      tabs.forEach((tab) => {
+        chrome.tabs.reload(tab.id);
+      });
+    });
+
   return false;
 });

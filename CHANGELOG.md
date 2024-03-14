@@ -1,3 +1,9 @@
+## <small>0.5.1 (2024-03-14)</small>
+
+* fix: remove invalid url from manifest ([bb54b1a](https://github.com/lunavod/TreeTabs/commit/bb54b1a))
+
+
+
 ##  (2024-03-14)
 
 * feat: auto reload extension container tabs ([b501db0](https://github.com/lunavod/TreeTabs/commit/b501db0))

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TreeTabs",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "A new way to experience tab management with Vivaldi",
   "permissions": ["tabs", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],

@@ -1,3 +1,9 @@
+## <small>0.5.2 (2024-03-14)</small>
+
+* fix: feature toggles now work correctly ([40def1d](https://github.com/lunavod/TreeTabs/commit/40def1d))
+
+
+
 ## <small>0.5.1 (2024-03-14)</small>
 
 * fix: remove invalid url from manifest ([bb54b1a](https://github.com/lunavod/TreeTabs/commit/bb54b1a))

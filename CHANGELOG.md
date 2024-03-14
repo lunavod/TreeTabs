@@ -1,3 +1,9 @@
+##  (2024-03-14)
+
+* feat: auto reload extension container tabs ([b501db0](https://github.com/lunavod/TreeTabs/commit/b501db0))
+
+
+
 ##  (2024-03-13)
 
 * feat: restoring openerTabId ([95cf385](https://github.com/lunavod/TreeTabs/commit/95cf385))

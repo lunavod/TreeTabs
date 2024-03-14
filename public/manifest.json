@@ -17,10 +17,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "http://localhost:*/container",
-        "https://*.vercel.app/container"
-      ],
+      "matches": ["https://tree-tabs-front.vercel.app/container"],
       "css": ["index.css", "main-styles.css"],
       "js": ["main.es.js"]
     }
